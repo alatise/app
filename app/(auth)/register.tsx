@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable import/no-named-as-default */
-import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
+import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useAuth } from "@/contexts/AuthContext";
-import { useAuthValidation } from "@/hooks/useAuthValidation";
+// import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/lib/ctx";
+import { RegisterRequest } from "@/lib/type";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Checkbox from "expo-checkbox";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
-  Alert,
   Image,
   Platform,
   ScrollView,
@@ -22,18 +23,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { z } from "zod";
 
 const Register = () => {
   const router = useRouter();
-  const { register, isLoading, error, clearError } = useAuth();
-  const {
-    errors,
-    validateEmail,
-    validatePassword,
-    validateConfirmPassword,
-    validateName,
-    clearErrors,
-  } = useAuthValidation();
+  const { isLoading } = useSession();
+  const { signUp } = useSession();
+
+  // const {
+  //   errors,
+  //   validateEmail,
+  //   validatePassword,
+  //   validateConfirmPassword,
+  //   validateName,
+  //   clearErrors,
+  // } = useAuthValidation();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,64 +47,64 @@ const Register = () => {
   });
   const [isChecked, setChecked] = useState(false);
 
-  useEffect(() => {
-    clearError();
-    clearErrors();
-  }, []);
+  // useEffect(() => {
+  //   clearError();
+  //   clearErrors();
+  // }, []);
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert("Registration Failed", error, [
-        { text: "OK", onPress: clearError },
-      ]);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert("Registration Failed", error, [
+  //       { text: "OK", onPress: clearError },
+  //     ]);
+  //   }
+  // }, [error]);
 
-  const handleInputChange =
-    (field: keyof typeof formData) => (value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-      clearErrors();
-    };
+  // const handleInputChange =
+  //   (field: keyof typeof formData) => (value: string) => {
+  //     setFormData((prev) => ({ ...prev, [field]: value }));
+  //     clearErrors();
+  //   };
 
-  const handleSignUp = async () => {
-    clearError();
-    clearErrors();
+  // const handleSignUp = async () => {
+  //   clearError();
+  //   clearErrors();
 
-    const isNameValid = validateName(formData.name);
-    const isEmailValid = validateEmail(formData.email);
-    const isPasswordValid = validatePassword(formData.password);
-    const isConfirmPasswordValid = validateConfirmPassword(
-      formData.password,
-      formData.confirmPassword
-    );
+  //   const isNameValid = validateName(formData.name);
+  //   const isEmailValid = validateEmail(formData.email);
+  //   const isPasswordValid = validatePassword(formData.password);
+  //   const isConfirmPasswordValid = validateConfirmPassword(
+  //     formData.password,
+  //     formData.confirmPassword
+  //   );
 
-    if (
-      !isNameValid ||
-      !isEmailValid ||
-      !isPasswordValid ||
-      !isConfirmPasswordValid
-    ) {
-      return;
-    }
+  //   if (
+  //     !isNameValid ||
+  //     !isEmailValid ||
+  //     !isPasswordValid ||
+  //     !isConfirmPasswordValid
+  //   ) {
+  //     return;
+  //   }
 
-    if (!isChecked) {
-      Alert.alert(
-        "Terms Required",
-        "You must accept the terms and conditions to continue."
-      );
-      return;
-    }
+  //   if (!isChecked) {
+  //     Alert.alert(
+  //       "Terms Required",
+  //       "You must accept the terms and conditions to continue."
+  //     );
+  //     return;
+  //   }
 
-    try {
-      await register({
-        name: formData.name.trim(),
-        email: formData.email.toLowerCase().trim(),
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        acceptedTerms: isChecked,
-      });
-    } catch (registerError) {}
-  };
+  //   try {
+  //     await register({
+  //       name: formData.name.trim(),
+  //       email: formData.email.toLowerCase().trim(),
+  //       password: formData.password,
+  //       confirmPassword: formData.confirmPassword,
+  //       acceptedTerms: isChecked,
+  //     });
+  //   } catch (registerError) {}
+  // };
 
   const handleSignIn = () => {
     router.push("/(auth)/login");
@@ -110,18 +114,38 @@ const Register = () => {
     router.back();
   };
 
-  const isFormValid =
-    formData.name.trim() &&
-    formData.email.trim() &&
-    formData.password.trim() &&
-    formData.confirmPassword.trim() &&
-    isChecked;
+  const schema = z.object({
+    name: z.string().trim().min(2, "Full name is required"),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .min(1, "Email is required"),
+    password: z.string().trim().min(6, "Password is required"),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema), // Use Zod resolver
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: RegisterRequest) => {
+    signUp(data);
+    console.log(data);
+  };
 
   return (
-    <View className="bg-white flex-1">
+    <View className="bg-white flex-1 pb-16">
       <StatusBar style="light" />
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
+        // contentContainerStyle={{ flexGrow: 1 }}
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
         <View className="w-full aspect-[1/0.5] bg-[#EFE7DC] rounded-b-[40px] relative overflow-hidden">
@@ -153,7 +177,7 @@ const Register = () => {
           />
         </View>
 
-        <View className="flex-1 bg-white pt-20">
+        <View className="flex-1 bg-white pt-24">
           <View className={`${GlobalClasses.container} px-5`}>
             <View>
               <Text className="text-h3 text-title font-inter-semibold">
@@ -167,53 +191,45 @@ const Register = () => {
             <View className="mt-5">
               <View>
                 <Input
+                  control={control}
+                  errors={errors.name}
+                  required
+                  name="name"
                   backround
                   inputLg
                   placeholder="Full Name"
-                  value={formData.name}
-                  onChangeText={handleInputChange("name")}
                   icon={<Feather name="user" size={20} color="#000" />}
                 />
-                {errors.name && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.name}
-                  </Text>
-                )}
               </View>
 
               <View className="mt-[15px]">
                 <Input
+                  control={control}
+                  errors={errors.email}
+                  required
                   backround
+                  name="email"
                   inputLg
                   placeholder="Email Address"
                   value={formData.email}
-                  onChangeText={handleInputChange("email")}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   icon={<Feather name="mail" size={20} color="#000" />}
                 />
-                {errors.email && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.email}
-                  </Text>
-                )}
               </View>
 
               <View className="mt-[15px]">
                 <Input
+                  control={control}
+                  errors={errors.password}
+                  required
+                  name="password"
                   backround
                   inputLg
                   type="password"
                   placeholder="Password"
-                  value={formData.password}
-                  onChangeText={handleInputChange("password")}
                   icon={<Feather name="lock" size={20} color="#000" />}
                 />
-                {errors.password && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.password}
-                  </Text>
-                )}
               </View>
 
               <View className="flex-row items-center mt-[10px]">
@@ -231,14 +247,17 @@ const Register = () => {
 
             <View className="mt-[15px] mb-5 relative">
               <Button
-                title={isLoading ? "Creating Account..." : "Sign Up"}
-                onPress={handleSignUp}
+                textClassName="text-white items-center  text-[20px] font-inter-medium  "
+                className="mt-3 h-[54px]  bg-secondary"
+                children="Sign Up"
+                loading={isLoading}
+                onPress={handleSubmit(onSubmit)}
               />
-              {isLoading && (
+              {/* {isLoading && (
                 <View className="absolute right-5 top-1/2 -translate-y-[10px]">
                   <ActivityIndicator size="small" color="#fff" />
                 </View>
-              )}
+              )} */}
             </View>
 
             <View className="flex-row items-center mb-5">
@@ -273,7 +292,7 @@ const Register = () => {
           </View>
         </View>
 
-        <View className="items-center flex-row justify-center pb-[30px]">
+        <View className="items-center flex-row justify-center pt-6">
           <Text className="text-[15px] text-text font-inter-regular">
             Already have an account?{" "}
           </Text>

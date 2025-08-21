@@ -1,18 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import Button from "@/components/Button/Button";
+// import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext";
 import { useAuthValidation } from "@/hooks/useAuthValidation";
+import { useSession } from "@/lib/ctx";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "@/components/Shared/Button";
+import { LoginRequest } from "@/lib/type";
 import {
-  ActivityIndicator,
-  Alert,
   Image,
   Platform,
   ScrollView,
@@ -23,25 +28,25 @@ import {
 
 const Login = () => {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuth();
-  const { errors, validateEmail, validatePassword, clearErrors } =
-    useAuthValidation();
+  // const { login, isLoading, error, clearError } = useAuth();
+  const { isLoading, signIn } = useSession();
+  const { validateEmail, validatePassword, clearErrors } = useAuthValidation();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  useEffect(() => {
-    clearError();
-    clearErrors();
-  }, []);
+  // useEffect(() => {
+  //   clearError();
+  //   clearErrors();
+  // }, []);
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert("Login Failed", error, [{ text: "OK", onPress: clearError }]);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert("Login Failed", error, [{ text: "OK", onPress: clearError }]);
+  //   }
+  // }, [error]);
 
   const handleInputChange =
     (field: keyof typeof formData) => (value: string) => {
@@ -49,26 +54,26 @@ const Login = () => {
       clearErrors();
     };
 
-  const handleSignIn = async () => {
-    clearError();
-    clearErrors();
+  // const handleSignIn = async () => {
+  //   clearError();
+  //   clearErrors();
 
-    const isEmailValid = validateEmail(formData.email);
-    const isPasswordValid = validatePassword(formData.password);
+  //   const isEmailValid = validateEmail(formData.email);
+  //   const isPasswordValid = validatePassword(formData.password);
 
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
+  //   if (!isEmailValid || !isPasswordValid) {
+  //     return;
+  //   }
 
-    try {
-      await login({
-        email: formData.email.toLowerCase().trim(),
-        password: formData.password,
-      });
+  //   try {
+  //     await login({
+  //       email: formData.email.toLowerCase().trim(),
+  //       password: formData.password,
+  //     });
 
-      router.replace("/(drawer)/(tabs)");
-    } catch (loginError) { }
-  };
+  //     router.replace("/(drawer)/(tabs)");
+  //   } catch (loginError) { }
+  // };
 
   const handleCreateAccount = () => {
     router.push("/(auth)/register");
@@ -84,11 +89,37 @@ const Login = () => {
 
   const isFormValid = formData.email.trim() && formData.password.trim();
 
+  const schema = z.object({
+    email: z
+      .string()
+      .email("Invalid email address")
+      .min(1, "Email is required"),
+    password: z.string().trim().min(6, "Password is required"),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema), // Use Zod resolver
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (data: LoginRequest) => {
+    signIn(data);
+    console.log(data);
+  };
+
   return (
     <View className="bg-white flex-1">
       <StatusBar style="light" />
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
+        // contentContainerStyle={{ flexGrow: 1 }}
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
       >
         <View className="w-full aspect-[1/0.5] bg-[#EFE7DC] rounded-b-[40px] relative overflow-hidden">
@@ -120,7 +151,7 @@ const Login = () => {
           />
         </View>
 
-        <View className="flex-1 bg-white pt-20">
+        <View className="flex-1 bg-white pt-24">
           <View className={`${GlobalClasses.container} px-5`}>
             <View>
               <Text className="text-h3 text-title font-inter-semibold">
@@ -134,58 +165,49 @@ const Login = () => {
             <View className="mt-5">
               <View>
                 <Input
+                  control={control}
+                  errors={errors.email}
+                  name="email"
                   backround
                   inputLg
                   placeholder="Email Address"
-                  value={formData.email}
-                  onChangeText={handleInputChange("email")}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   icon={<Feather name="mail" size={20} color="#000" />}
                 />
-                {errors.email && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.email}
-                  </Text>
-                )}
               </View>
 
               <View className="mt-[15px]">
                 <Input
+                  control={control}
+                  errors={errors.password}
+                  name="password"
                   backround
                   inputLg
                   type="password"
                   placeholder="Password"
-                  value={formData.password}
-                  onChangeText={handleInputChange("password")}
                   icon={<Feather name="lock" size={20} color="#000" />}
                 />
-                {errors.password && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.password}
-                  </Text>
-                )}
-                <TouchableOpacity
-                  onPress={handleForgotPassword}
-                  disabled={isLoading}
-                >
-                  <Text className="text-[15px] text-title font-inter-regular underline text-right mt-[18px]">
-                    Forgot Password?
-                  </Text>
-                </TouchableOpacity>
               </View>
+
+              <TouchableOpacity
+                onPress={handleForgotPassword}
+                disabled={isLoading}
+              >
+                <Text className="text-[15px] text-title font-inter-regular underline text-right mt-[18px]">
+                  Forgot Password?
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <View className="mt-5 mb-5 relative">
               <Button
-                title={isLoading ? "Signing In..." : "Sign In"}
-                onPress={handleSignIn}
+                loading={isLoading}
+                textClassName="text-white items-center  text-[20px] font-inter-medium  "
+                className="mt-3 h-[54px]  bg-secondary"
+                children="Shop Now"
+                onPress={handleSubmit(onSubmit)}
               />
-              {isLoading && (
-                <View className="absolute right-5 top-1/2 -translate-y-[10px]">
-                  <ActivityIndicator size="small" color="#fff" />
-                </View>
-              )}
             </View>
 
             <View className="flex-row items-center mb-[30px]">
@@ -220,7 +242,7 @@ const Login = () => {
           </View>
         </View>
 
-        <View className="items-center flex-row justify-center pb-[30px] pt-5">
+        <View className="items-center flex-row justify-center pb-[30px] pt-10">
           <Text className="text-[15px] text-text font-inter-regular">
             Not a member?{" "}
           </Text>

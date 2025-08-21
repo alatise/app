@@ -4,15 +4,13 @@ import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext";
 import { useAuthValidation } from "@/hooks/useAuthValidation";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
   Image,
   Platform,
   ScrollView,
@@ -23,45 +21,45 @@ import {
 
 const ForgotPassword = () => {
   const router = useRouter();
-  const { forgotPassword, isLoading, error, clearError } = useAuth();
+  // const { forgotPassword, isLoading, error, clearError } = useAuth();
   const { errors, validateEmail, clearErrors } = useAuthValidation();
 
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    clearError();
-    clearErrors();
-  }, []);
+  // useEffect(() => {
+  //   clearError();
+  //   clearErrors();
+  // }, []);
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert("Error", error, [{ text: "OK", onPress: clearError }]);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert("Error", error, [{ text: "OK", onPress: clearError }]);
+  //   }
+  // }, [error]);
 
-  const handleSendMail = async () => {
-    clearError();
-    clearErrors();
+  // const handleSendMail = async () => {
+  //   clearError();
+  //   clearErrors();
 
-    if (!validateEmail(email)) {
-      return;
-    }
+  //   if (!validateEmail(email)) {
+  //     return;
+  //   }
 
-    try {
-      await forgotPassword({ email: email.toLowerCase().trim() });
+  //   try {
+  //     await forgotPassword({ email: email.toLowerCase().trim() });
 
-      Alert.alert(
-        "Code Sent",
-        "A verification code has been sent to your email address.",
-        [
-          {
-            text: "OK",
-            onPress: () => router.push("/(auth)/otp-authentication"),
-          },
-        ]
-      );
-    } catch (forgotError) {}
-  };
+  //     Alert.alert(
+  //       "Code Sent",
+  //       "A verification code has been sent to your email address.",
+  //       [
+  //         {
+  //           text: "OK",
+  //           onPress: () => router.push("/(auth)/otp-authentication"),
+  //         },
+  //       ]
+  //     );
+  //   } catch (forgotError) {}
+  // };
 
   const handleBackToSignIn = () => {
     router.push("/(auth)/login");
@@ -146,21 +144,21 @@ const ForgotPassword = () => {
         <View className={`${GlobalClasses.container} px-5 pb-[30px]`}>
           <View className="relative mb-[10px]">
             <Button
-              title={isLoading ? "Sending..." : "Send Mail"}
-              onPress={handleSendMail}
+              title={"Send Mail"}
+              // onPress={handleSendMail}
             />
-            {isLoading && (
+            {/* {isLoading && (
               <View className="absolute right-5 top-1/2 -translate-y-[10px]">
                 <ActivityIndicator size="small" color="#fff" />
               </View>
-            )}
+            )} */}
           </View>
 
           <View className="items-center flex-row justify-center pt-[10px]">
             <Text className="text-[15px] text-text font-inter-regular">
               Back To{" "}
             </Text>
-            <TouchableOpacity onPress={handleBackToSignIn} disabled={isLoading}>
+            <TouchableOpacity onPress={handleBackToSignIn}>
               <Text className="text-[15px] text-title font-inter-medium underline">
                 Sign In
               </Text>

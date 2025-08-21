@@ -4,15 +4,14 @@ import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useAuth } from "@/contexts/AuthContext";
 import { useAuthValidation } from "@/hooks/useAuthValidation";
+import { useSession } from "@/lib/ctx";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Platform,
   ScrollView,
@@ -23,10 +22,12 @@ import {
 
 const ResetPassword = () => {
   const router = useRouter();
-  const { resetPassword, isLoading, error, clearError, getTempEmail } =
-    useAuth();
+  // const { resetPassword, isLoading, error, clearError, getTempEmail } =
+  //   useAuth();
   const { errors, validatePassword, validateConfirmPassword, clearErrors } =
     useAuthValidation();
+
+  const { isLoading } = useSession();
 
   const [formData, setFormData] = useState({
     newPassword: "",
@@ -34,26 +35,26 @@ const ResetPassword = () => {
   });
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    const loadEmail = async () => {
-      const tempEmail = await getTempEmail();
-      if (tempEmail) {
-        setEmail(tempEmail);
-      } else {
-        router.replace("/(auth)/forgot-password");
-      }
-    };
+  // useEffect(() => {
+  //   const loadEmail = async () => {
+  //     const tempEmail = await getTempEmail();
+  //     if (tempEmail) {
+  //       setEmail(tempEmail);
+  //     } else {
+  //       router.replace("/(auth)/forgot-password");
+  //     }
+  //   };
 
-    loadEmail();
-    clearError();
-    clearErrors();
-  }, []);
+  //   loadEmail();
+  //   clearError();
+  //   clearErrors();
+  // }, []);
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert("Reset Failed", error, [{ text: "OK", onPress: clearError }]);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert("Reset Failed", error, [{ text: "OK", onPress: clearError }]);
+  //   }
+  // }, [error]);
 
   const handleInputChange =
     (field: keyof typeof formData) => (value: string) => {
@@ -61,42 +62,42 @@ const ResetPassword = () => {
       clearErrors();
     };
 
-  const handleContinue = async () => {
-    clearError();
-    clearErrors();
+  // const handleContinue = async () => {
+  //   clearError();
+  //   clearErrors();
 
-    const isPasswordValid = validatePassword(formData.newPassword);
-    const isConfirmPasswordValid = validateConfirmPassword(
-      formData.newPassword,
-      formData.confirmPassword
-    );
+  //   const isPasswordValid = validatePassword(formData.newPassword);
+  //   const isConfirmPasswordValid = validateConfirmPassword(
+  //     formData.newPassword,
+  //     formData.confirmPassword
+  //   );
 
-    if (!isPasswordValid || !isConfirmPasswordValid) {
-      return;
-    }
+  //   if (!isPasswordValid || !isConfirmPasswordValid) {
+  //     return;
+  //   }
 
-    const mockOTP = "123456";
+  //   const mockOTP = "123456";
 
-    try {
-      await resetPassword({
-        email: email,
-        newPassword: formData.newPassword,
-        confirmPassword: formData.confirmPassword,
-        otpCode: mockOTP,
-      });
+  //   try {
+  //     await resetPassword({
+  //       email: email,
+  //       newPassword: formData.newPassword,
+  //       confirmPassword: formData.confirmPassword,
+  //       otpCode: mockOTP,
+  //     });
 
-      Alert.alert(
-        "Password Reset Successful",
-        "Your password has been reset successfully. Please login with your new password.",
-        [
-          {
-            text: "OK",
-            onPress: () => router.push("/(auth)/login"),
-          },
-        ]
-      );
-    } catch (resetError) {}
-  };
+  //     Alert.alert(
+  //       "Password Reset Successful",
+  //       "Your password has been reset successfully. Please login with your new password.",
+  //       [
+  //         {
+  //           text: "OK",
+  //           onPress: () => router.push("/(auth)/login"),
+  //         },
+  //       ]
+  //     );
+  //   } catch (resetError) {}
+  // };
 
   const handleBackToSignIn = () => {
     router.push("/(auth)/login");
@@ -193,7 +194,7 @@ const ResetPassword = () => {
             <View className="mt-[30px] mb-5 relative">
               <Button
                 title={isLoading ? "Updating..." : "Continue"}
-                onPress={handleContinue}
+                // onPress={handleContinue}
               />
               {isLoading && (
                 <View className="absolute right-5 top-1/2 -translate-y-[10px]">

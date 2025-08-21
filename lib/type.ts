@@ -6,6 +6,12 @@ export interface User {
   name?: string;
 }
 
+export interface CommonState {
+  message: string;
+  status: number;
+  timestamp: string;
+}
+
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -19,21 +25,38 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface LoginResponse extends CommonState {
+  data: {
+    email: string;
+    token: string;
+    expires_in: string;
+    token_type: string;
+    user_id: number;
+    name: string;
+  };
+}
+
 export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
-  acceptedTerms: boolean;
+  // confirmPassword: string;
 }
 
 export interface ForgotPasswordRequest {
   email: string;
 }
 
-export interface ResetPasswordRequest {
+export interface OtpConfirmationRequest {
   email: string;
-  newPassword: string;
-  confirmPassword: string;
-  otpCode: string;
+  otp: string;
+}
+
+export interface changePasswordRequest {
+  new_password: string;
+  current_password: string;
+}
+
+export interface authRefreshRequest {
+  user_id: number;
 }

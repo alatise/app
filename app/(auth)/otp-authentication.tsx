@@ -4,8 +4,9 @@ import Button from "@/components/Button/Button";
 import OTPInput from "@/components/Input/OTPInput";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext";
 import { useAuthValidation } from "@/hooks/useAuthValidation";
+import { useSession } from "@/lib/ctx";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -23,14 +24,15 @@ import {
 
 const OTPAuthentication = () => {
   const router = useRouter();
-  const {
-    verifyOTP,
-    forgotPassword,
-    isLoading,
-    error,
-    clearError,
-    getTempEmail,
-  } = useAuth();
+  // const {
+  //   verifyOTP,
+  //   forgotPassword,
+  //   isLoading,
+  //   error,
+  //   clearError,
+  //   getTempEmail,
+  // } = useAuth();
+  const {isLoading} = useSession()
   const { errors, validateOTP, clearErrors } = useAuthValidation();
 
   const [otpCode, setOTPCode] = useState("");
@@ -38,56 +40,56 @@ const OTPAuthentication = () => {
   const [email, setEmail] = useState("");
   const maximumCodeLength = 6;
 
-  useEffect(() => {
-    const loadEmail = async () => {
-      const tempEmail = await getTempEmail();
-      if (tempEmail) {
-        setEmail(tempEmail);
-      } else {
-        router.replace("/(auth)/forgot-password");
-      }
-    };
+  // useEffect(() => {
+  //   const loadEmail = async () => {
+  //     const tempEmail = await getTempEmail();
+  //     if (tempEmail) {
+  //       setEmail(tempEmail);
+  //     } else {
+  //       router.replace("/(auth)/forgot-password");
+  //     }
+  //   };
 
-    loadEmail();
-    clearError();
-    clearErrors();
-  }, []);
+  //   loadEmail();
+  //   clearError();
+  //   clearErrors();
+  // }, []);
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert("Verification Failed", error, [
-        { text: "OK", onPress: clearError },
-      ]);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert("Verification Failed", error, [
+  //       { text: "OK", onPress: clearError },
+  //     ]);
+  //   }
+  // }, [error]);
 
-  const handleProceed = async () => {
-    clearError();
-    clearErrors();
+  // const handleProceed = async () => {
+  //   clearError();
+  //   clearErrors();
 
-    if (!validateOTP(otpCode, maximumCodeLength)) {
-      return;
-    }
+  //   if (!validateOTP(otpCode, maximumCodeLength)) {
+  //     return;
+  //   }
 
-    try {
-      await verifyOTP(email, otpCode);
+  //   try {
+  //     await verifyOTP(email, otpCode);
 
-      router.push("/(auth)/reset-password");
-    } catch (verifyError) {}
-  };
+  //     router.push("/(auth)/reset-password");
+  //   } catch (verifyError) {}
+  // };
 
-  const handleResend = async () => {
-    if (!email) return;
+  // const handleResend = async () => {
+  //   if (!email) return;
 
-    try {
-      await forgotPassword({ email });
-      Alert.alert(
-        "Code Sent",
-        "A new verification code has been sent to your email."
-      );
-      setOTPCode("");
-    } catch (resendError) {}
-  };
+  //   try {
+  //     await forgotPassword({ email });
+  //     Alert.alert(
+  //       "Code Sent",
+  //       "A new verification code has been sent to your email."
+  //     );
+  //     setOTPCode("");
+  //   } catch (resendError) {}
+  // };
 
   const handleBackToSignIn = () => {
     router.push("/(auth)/login");
@@ -165,7 +167,7 @@ const OTPAuthentication = () => {
                 <Text className="text-[15px] text-text font-inter-regular">
                   If you don&apos;t receive code!{" "}
                 </Text>
-                <TouchableOpacity onPress={handleResend} disabled={isLoading}>
+                <TouchableOpacity disabled={isLoading}>
                   <Text className="text-[15px] text-title font-inter-medium underline">
                     Resend
                   </Text>
@@ -179,7 +181,7 @@ const OTPAuthentication = () => {
           <View className="relative mb-[10px]">
             <Button
               title={isLoading ? "Verifying..." : "Proceed"}
-              onPress={handleProceed}
+              // onPress={handleProceed}
             />
             {isLoading && (
               <View className="absolute right-5 top-1/2 -translate-y-[10px]">

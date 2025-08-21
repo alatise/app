@@ -53,13 +53,13 @@ const OnBoarding = () => {
   };
 
   return (
-    <View className="flex-1">
+    <View style={{flex: 1}} className="flex-1">
       <StatusBar style="light" />
 
       <LinearGradient
         colors={["#B29954", "#000000"]}
         locations={[0.3935, 1.1065]}
-        className="flex-1"
+        style={{flex: 1}}
       >
         <View className="flex-1 relative items-center justify-center">
           <Image
