@@ -5,6 +5,7 @@ import Input from "@/components/Input/Input";
 import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
+import { CustomAlert } from "@/constants/toastConfig";
 // import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/lib/ctx";
 import { RegisterRequest } from "@/lib/type";
@@ -27,8 +28,8 @@ import { z } from "zod";
 
 const Register = () => {
   const router = useRouter();
-  const { isLoading } = useSession();
-  const { signUp } = useSession();
+  const { isLoading, signUp, alertVisible, hideAlert, requestResponse } =
+    useSession();
 
   // const {
   //   errors,
@@ -303,6 +304,12 @@ const Register = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        type="error"
+      />
     </View>
   );
 };

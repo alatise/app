@@ -1,9 +1,16 @@
+import { CustomAlert } from "@/constants/toastConfig";
 import { useStorageState } from "@/hooks/useStorageState";
 import { useSigninMutation, useSignupMutation } from "@/services/auth";
 import { router } from "expo-router";
 import { createContext, use, useState, type PropsWithChildren } from "react";
-import Toast from "react-native-toast-message";
 import { LoginRequest, RegisterRequest } from "./type";
+
+type prop = {
+  status: number;
+  message?: string;
+  title: string;
+  type?: string;
+};
 
 export const AuthContext = createContext<{
   isLoading: boolean;
@@ -15,6 +22,11 @@ export const AuthContext = createContext<{
   session?: string | null;
   isSessionLoading: boolean;
   isAuthenticated: boolean;
+  alertVisible: boolean;
+  showAlert: () => void;
+  hideAlert: () => void;
+  requestResponse: prop;
+  setRequestResponse: React.Dispatch<React.SetStateAction<prop>>;
 }>({
   isLoading: false,
   setLoading: () => null,
@@ -25,6 +37,16 @@ export const AuthContext = createContext<{
   isSessionLoading: false,
   isAuthenticated: false,
   setSession: () => {},
+  alertVisible: false,
+  showAlert: () => {},
+  hideAlert: () => {},
+  requestResponse: {
+    status: 0,
+    message: "",
+    title: "",
+    type: "",
+  },
+  setRequestResponse: () => {},
 });
 
 // This hook can be used to access the user info.
@@ -40,29 +62,44 @@ export function useSession() {
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isSessionLoading, session], setSession] = useStorageState("session");
   const [isLoading, setLoading] = useState(false);
-
   const [performSignin] = useSigninMutation();
   const [performSignup] = useSignupMutation();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [requestResponse, setRequestResponse] = useState<prop>({
+    status: 0,
+    message: "",
+    title: "",
+    type: "",
+  });
+
+  const showAlert = () => {
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
 
   const isAuthenticated = !!session;
   const signIn = async (credentials: LoginRequest) => {
     setLoading(true);
     try {
       const response = await performSignin(credentials).unwrap();
-      //   console.log(">>>>>respomse", response.data);
+      console.log(">>>>> login response", response.data);
 
       if (response.status === 200) {
         setSession(response.data.token);
         return Promise.resolve();
       }
     } catch (error: any) {
-      console.log(">>>>.error", error);
-
-      Toast.show({
+      console.log(">>>> login error", error.data.message);
+      setRequestResponse({
+        status: error.data.status,
+        title: error.data.message,
+        message: "",
         type: "error",
-        text1: "An Error Occured",
-        text2: error!!?.data.details.errors.non_field_errors,
       });
+      showAlert();
       return Promise.reject(error);
     } finally {
       setLoading(false);
@@ -78,16 +115,17 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
       if (response.status === 201) {
         router.replace("/(auth)/login");
+        return Promise.resolve();
       }
-      return Promise.resolve();
     } catch (error: any) {
-      console.log(">>>>.error---", error);
-
-      Toast.show({
-        type: "error", // or 'error' or 'delete'
-        text1: "An Error Occured",
-        text2: error!!?.data.message,
+      console.log(">>>>.error---", error.data.status);
+      setRequestResponse({
+        status: error.data.status,
+        title: error.data.message,
+        message: error.data.message,
+        type: "error",
       });
+      showAlert();
       return Promise.reject(error); // Propagate error
     } finally {
       setLoading(false);
@@ -110,9 +148,21 @@ export function SessionProvider({ children }: PropsWithChildren) {
         isAuthenticated,
         isLoading,
         setLoading,
+        showAlert,
+        hideAlert,
+        alertVisible,
+        requestResponse,
+        setRequestResponse,
       }}
     >
       {children}
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.title}
+        message={requestResponse.message}
+        type={requestResponse.type!}
+      />
     </AuthContext>
   );
 }

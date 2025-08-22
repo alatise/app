@@ -5,18 +5,16 @@ import Input from "@/components/Input/Input";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
 // import { useAuth } from "@/contexts/AuthContext";
-import { useAuthValidation } from "@/hooks/useAuthValidation";
+import { Button } from "@/components/Shared/Button";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useSession } from "@/lib/ctx";
+import { LoginRequest } from "@/lib/type";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { Button } from "@/components/Shared/Button";
-import { LoginRequest } from "@/lib/type";
 import {
   Image,
   Platform,
@@ -25,55 +23,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { z } from "zod";
 
 const Login = () => {
   const router = useRouter();
-  // const { login, isLoading, error, clearError } = useAuth();
-  const { isLoading, signIn } = useSession();
-  const { validateEmail, validatePassword, clearErrors } = useAuthValidation();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  // useEffect(() => {
-  //   clearError();
-  //   clearErrors();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert("Login Failed", error, [{ text: "OK", onPress: clearError }]);
-  //   }
-  // }, [error]);
-
-  const handleInputChange =
-    (field: keyof typeof formData) => (value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-      clearErrors();
-    };
-
-  // const handleSignIn = async () => {
-  //   clearError();
-  //   clearErrors();
-
-  //   const isEmailValid = validateEmail(formData.email);
-  //   const isPasswordValid = validatePassword(formData.password);
-
-  //   if (!isEmailValid || !isPasswordValid) {
-  //     return;
-  //   }
-
-  //   try {
-  //     await login({
-  //       email: formData.email.toLowerCase().trim(),
-  //       password: formData.password,
-  //     });
-
-  //     router.replace("/(drawer)/(tabs)");
-  //   } catch (loginError) { }
-  // };
+  const { isLoading, signIn, alertVisible, hideAlert, requestResponse } =
+    useSession();
 
   const handleCreateAccount = () => {
     router.push("/(auth)/register");
@@ -86,8 +41,6 @@ const Login = () => {
   const handleGoBack = () => {
     router.back();
   };
-
-  const isFormValid = formData.email.trim() && formData.password.trim();
 
   const schema = z.object({
     email: z
@@ -117,11 +70,7 @@ const Login = () => {
   return (
     <View className="bg-white flex-1">
       <StatusBar style="light" />
-      <ScrollView
-        // contentContainerStyle={{ flexGrow: 1 }}
-        style={{ flex: 1 }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         <View className="w-full aspect-[1/0.5] bg-[#EFE7DC] rounded-b-[40px] relative overflow-hidden">
           <View className="absolute -top-[5px] left-[5px] w-3/5 h-[120%] z-[1]">
             <Image
@@ -203,9 +152,9 @@ const Login = () => {
             <View className="mt-5 mb-5 relative">
               <Button
                 loading={isLoading}
-                textClassName="text-white items-center  text-[20px] font-inter-medium  "
+                textClassName="text-white items-center text-[20px] font-inter-medium  "
                 className="mt-3 h-[54px]  bg-secondary"
-                children="Shop Now"
+                children="Sign In"
                 onPress={handleSubmit(onSubmit)}
               />
             </View>
@@ -253,6 +202,12 @@ const Login = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        type="error"
+      /> */}
     </View>
   );
 };

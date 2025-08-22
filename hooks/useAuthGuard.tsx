@@ -1,29 +1,38 @@
 import { useSession } from "@/lib/ctx";
-import { useRouter, useSegments, useRootNavigationState } from "expo-router";
+import { useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 
 export const useAuthGuard = () => {
   const { session, isSessionLoading } = useSession();
   const router = useRouter();
   const segments = useSegments();
-  const navigationState = useRootNavigationState();
 
   const isAuthenticated = !!session;
 
-  useEffect(() => {
-    // ⛔ Don’t run until navigation state is ready
-    if (!navigationState?.key) return;
+  const rootSegment = segments[0] as string | undefined;
 
+  const MAIN_PATH = "/(drawer)/(tabs)" as any;
+
+  useEffect(() => {
+    // SecureStore.deleteItemAsync("session");
+    // SecureStore.deleteItemAsync("selectedInterest");
     if (isSessionLoading) return;
 
-    const rootSegment = segments[0] as string | undefined;
-    const inAuth = rootSegment === "(auth)";
-    const inMain = rootSegment === "(drawer)";
+    const inRoot = !rootSegment;
+    const inOnboarding = rootSegment === "(auth)";
+    const inPublic = inRoot || inOnboarding 
+    const inMain = rootSegment === "(drawer)" || rootSegment === "(home)";
 
-    if (!isAuthenticated && !inAuth) {
-      router.replace("/(auth)/login");
-    } else if (isAuthenticated && !inMain) {
-      router.replace("/(drawer)/(tabs)");
+    // 🚪 Case 1: No session
+    if (!isAuthenticated) {
+      if (!inPublic) router.replace("/(auth)/login");
+      return;
     }
-  }, [isAuthenticated, isSessionLoading, segments, navigationState]);
+
+    // 🚪 Case 3: Session exists + interest selected
+    if (isAuthenticated) {
+      if (!inMain) router.replace(MAIN_PATH);
+      return;
+    }
+  }, [isAuthenticated, isSessionLoading, rootSegment, router, session]);
 };

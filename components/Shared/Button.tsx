@@ -33,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
         <ActivityIndicator size="small" color={"white"} />
       ) : (
         <Text
-          className={` font-semibold text-base text-center ${textClassName}`}
+          className={` font-semibold  text-center ${textClassName}`}
         >
           {children}
         </Text>

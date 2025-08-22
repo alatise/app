@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
+import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
+import { useSession } from "@/lib/ctx";
 // import { useAuth } from "@/contexts/AuthContext";
-import { useAuthValidation } from "@/hooks/useAuthValidation";
+import { ForgotPasswordRequest } from "@/lib/type";
+import { useSendOtpMutation } from "@/services/auth";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
 import {
   Image,
   Platform,
@@ -18,48 +22,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { z } from "zod";
 
 const ForgotPassword = () => {
-  const router = useRouter();
-  // const { forgotPassword, isLoading, error, clearError } = useAuth();
-  const { errors, validateEmail, clearErrors } = useAuthValidation();
+  const {
+    signIn,
+    alertVisible,
+    showAlert,
+    requestResponse,
+    setRequestResponse,
+  } = useSession();
 
-  const [email, setEmail] = useState("");
-
-  // useEffect(() => {
-  //   clearError();
-  //   clearErrors();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert("Error", error, [{ text: "OK", onPress: clearError }]);
-  //   }
-  // }, [error]);
-
-  // const handleSendMail = async () => {
-  //   clearError();
-  //   clearErrors();
-
-  //   if (!validateEmail(email)) {
-  //     return;
-  //   }
-
-  //   try {
-  //     await forgotPassword({ email: email.toLowerCase().trim() });
-
-  //     Alert.alert(
-  //       "Code Sent",
-  //       "A verification code has been sent to your email address.",
-  //       [
-  //         {
-  //           text: "OK",
-  //           onPress: () => router.push("/(auth)/otp-authentication"),
-  //         },
-  //       ]
-  //     );
-  //   } catch (forgotError) {}
-  // };
+  const [performSendOtp, { isLoading }] = useSendOtpMutation();
 
   const handleBackToSignIn = () => {
     router.push("/(auth)/login");
@@ -69,7 +43,54 @@ const ForgotPassword = () => {
     router.back();
   };
 
-  const isFormValid = email.trim();
+  const schema = z.object({
+    email: z
+      .string()
+      .email("Invalid email address")
+      .min(1, "Email is required"),
+    otp_type: z.string().optional(),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema), // Use Zod resolver
+  });
+
+  const onSubmit = async (data: ForgotPasswordRequest) => {
+    try {
+      const response = await performSendOtp({
+        email: data.email,
+        otp_type: "password_reset",
+      }).unwrap();
+      if (response.status === 200) {
+        router.push({
+          pathname: "/(auth)/otp-authentication",
+          params: {
+            email: data.email,
+          },
+        });
+        setRequestResponse({
+          status: response.status,
+          title: response.message,
+          message: response.data.message,
+          type: "success",
+        });
+        showAlert();
+        return Promise.resolve();
+      }
+    } catch (error: any) {
+      setRequestResponse({
+        status: error.data.status,
+        title: error.data.message,
+        type: "error",
+      });
+      showAlert();
+      return Promise.reject(error);
+    }
+  };
 
   return (
     <View className="bg-white flex-1">
@@ -107,54 +128,48 @@ const ForgotPassword = () => {
           />
         </View>
 
-        <View className="flex-1 bg-white pt-20">
+        <View className="flex-1 bg-white pt-28">
           <View className={`${GlobalClasses.container} px-5`}>
             <View>
               <Text className="text-h3 text-title font-inter-semibold">
                 Forgot Password
               </Text>
-              <Text className="text-[15px] text-black font-inter-regular mt-[5px]">
+              <Text className="text-[15px] text-black font-inter-regular mt-[10px]">
                 Enter the email associated with your account and we&apos;ll send
                 an email to reset your password
               </Text>
             </View>
 
-            <View className="mt-5">
+            <View className="mt-10">
               <View>
                 <Input
+                  control={control}
+                  errors={errors.email}
+                  name="email"
                   backround
                   inputLg
                   placeholder="Email Address"
-                  value={email}
-                  onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   icon={<Feather name="mail" size={20} color="#000" />}
                 />
-                {errors.email && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.email}
-                  </Text>
-                )}
               </View>
             </View>
           </View>
         </View>
 
-        <View className={`${GlobalClasses.container} px-5 pb-[30px]`}>
+        <View className={`${GlobalClasses.container} px-5 mb-10`}>
           <View className="relative mb-[10px]">
             <Button
-              title={"Send Mail"}
-              // onPress={handleSendMail}
+              loading={isLoading}
+              textClassName="text-white items-center text-[20px] font-inter-medium "
+              className="mt-3 h-[54px]  bg-secondary"
+              children="Send Mail"
+              onPress={handleSubmit(onSubmit)}
             />
-            {/* {isLoading && (
-              <View className="absolute right-5 top-1/2 -translate-y-[10px]">
-                <ActivityIndicator size="small" color="#fff" />
-              </View>
-            )} */}
           </View>
 
-          <View className="items-center flex-row justify-center pt-[10px]">
+          <View className="items-center flex-row justify-center pt-[30px]">
             <Text className="text-[15px] text-text font-inter-regular">
               Back To{" "}
             </Text>
@@ -166,6 +181,12 @@ const ForgotPassword = () => {
           </View>
         </View>
       </ScrollView>
+      {/* <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.title}
+        message={requestResponse.message}
+        type={requestResponse.type!}
+      /> */}
     </View>
   );
 };

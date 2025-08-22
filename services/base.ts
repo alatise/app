@@ -19,9 +19,9 @@ const axiosBaseQuery =
       let headers: AxiosRequestConfig["headers"] = {};
       const session = SecureStore.getItem("session");
 
-      if (session) {
-        headers.Authorization = `Bearer ${session}`;
-      }
+      // if (session) {
+      //   headers.Authorization = `Bearer ${session}`;
+      // }
 
       const result = await axios({ url: baseUrl + url, method, data, headers });
 

@@ -12,6 +12,18 @@ export interface CommonState {
   timestamp: string;
 }
 
+export interface Slide {
+  id: number;
+  title: string;
+  description: string;
+  image_url: string;
+}
+export interface WelcomeSlides extends CommonState {
+  data: {
+    slides: Slide[];
+  };
+}
+
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -45,14 +57,30 @@ export interface RegisterRequest {
 
 export interface ForgotPasswordRequest {
   email: string;
+  otp_type?: string
+}
+
+export interface ForgotPasswordResponse extends CommonState {
+  data: {
+    message: string;
+    otp_sent: string;
+  };
 }
 
 export interface OtpConfirmationRequest {
   email: string;
   otp: string;
+  otp_type: string;
 }
 
-export interface changePasswordRequest {
+export interface ResetPasswordRequest {
+  new_password: string;
+  confirm_password: string;
+  email?: string;
+  otp?: string;
+}
+
+export interface ChangePasswordRequest {
   new_password: string;
   current_password: string;
 }

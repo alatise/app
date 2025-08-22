@@ -1,105 +1,84 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { COLORS, FONTS } from "@/constants/theme";
+// app/otp.tsx
 import React, { useRef, useState } from "react";
 import {
-  StyleSheet,
+  Keyboard,
+  Pressable,
   Text,
   TextInput,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
-type Props = {
-  code: any;
-  setCode: any;
-  maximumLength: any;
-  setIsPinReady: any;
+type prop = {
+  setOtpStr: any;
+  length: number;
 };
 
-const OTPInput = ({ code, setCode, maximumLength, setIsPinReady }: Props) => {
-  const boxArray = new Array(maximumLength).fill(0);
-  const inputRef = useRef<TextInput | null>(null);
-  const [isInputBoxFocused, setIsInputBoxFocused] = useState(false);
+export default function OTPInput({ setOtpStr, length }: prop) {
+  const [otp, setOtp] = useState("");
+  const inputRef = useRef<TextInput>(null);
 
-  const boxDigit = (_: any, index: any) => {
-    const emptyInput = "";
-    const digit = code[index] || emptyInput;
-
-    return (
-      <View key={index} style={styles.SplitBoxes}>
-        <Text
-          style={[
-            FONTS.fontLight,
-            styles.SplitBoxText,
-            { color: COLORS.title },
-          ]}
-        >
-          {digit}
-        </Text>
-      </View>
-    );
-  };
-
-  const handleOnPress = () => {
-    setIsInputBoxFocused(true);
+  const handlePress = () => {
     inputRef.current?.focus();
   };
 
-  const handleOnBlur = () => {
-    setIsInputBoxFocused(false);
+  const handleChange = (text: string) => {
+    const numericText = text.replace(/[^0-9]/g, "");
+    if (numericText.length <= length) {
+      setOtpStr(numericText);
+      setOtp(numericText);
+    }
   };
 
+  const renderPinBoxes = () => {
+    const boxes = [];
+    for (let i = 0; i < length; i++) {
+      const digit = otp[i] || "";
+      const isCurrentInputBox = i === otp.length && otp.length < length;
+
+      boxes.push(
+        <View
+          key={i}
+          className={`w-16 h-[60px] border rounded-lg flex-row justify-center items-center m-1 bg-white
+            ${isCurrentInputBox ? "border-[#a6a6a8]" : "border-gray-300"}
+          `}
+        >
+          <Text className="text-3xl font-bold text-gray-800 mx-auto pt-2">
+            {secureTextEntry && digit ? "*" : digit}
+          </Text>
+        </View>
+      );
+    }
+    return boxes;
+  };
+
+  const secureTextEntry = true;
+
   return (
-    <View style={styles.OTPInputContainer}>
-      <TouchableOpacity
-        style={styles.SplitOTPBoxesContainer}
-        onPress={handleOnPress}
-      >
-        {boxArray.map(boxDigit)}
-      </TouchableOpacity>
-      <TextInput
-        style={styles.TextInputHidden}
-        value={code}
-        onChangeText={setCode}
-        maxLength={maximumLength}
-        ref={inputRef}
-        onBlur={handleOnBlur}
-        keyboardType="numeric"
-      />
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View className="justify-center items-center px-6 pt-10">
+        <Pressable onPress={handlePress} className="flex-row space-x-2">
+          {renderPinBoxes()}
+        </Pressable>
+
+        {/* Hidden input for capturing keystrokes */}
+        <TextInput
+          ref={inputRef}
+          value={otp}
+          onChangeText={handleChange}
+          keyboardType="number-pad"
+          maxLength={length}
+          autoFocus
+          style={{
+            position: "absolute",
+            opacity: 0.01, // Tiny opacity to avoid being skipped
+            height: 1, // Non-zero height
+            width: 1, // Non-zero width
+            zIndex: -1, // Keep it behind everything
+          }}
+          caretHidden={true}
+        />
+      </View>
+    </TouchableWithoutFeedback>
   );
-};
-
-const styles = StyleSheet.create({
-  OTPInputContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  TextInputHidden: {
-    position: "absolute",
-    opacity: 0,
-  },
-  SplitOTPBoxesContainer: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    paddingTop: 20,
-    gap: 10,
-  },
-  SplitBoxes: {
-    borderColor: COLORS.borderColor,
-    borderWidth: 1,
-    borderRadius: 8,
-    minWidth: 45,
-    height: 60,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  SplitBoxText: {
-    fontSize: 28,
-    textAlign: "center",
-    color: COLORS.title,
-  },
-});
-
-export default OTPInput;
+}

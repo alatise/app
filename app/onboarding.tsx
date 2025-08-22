@@ -1,11 +1,13 @@
 import Button from "@/components/Button/Button";
 import { IMAGES } from "@/constants/Images";
 import "@/global.css";
+import { useGetWelcomeQuery } from "@/services/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   Platform,
@@ -39,6 +41,8 @@ const OnBoarding = () => {
   const scrollRef = useRef<ScrollView>(null);
   const [sliderIndex, setSliderIndex] = useState<number>(1);
 
+  const { data, isLoading } = useGetWelcomeQuery();
+
   const onScroll = (val: any) => {
     setSliderIndex(Math.round(val.nativeEvent.contentOffset.x / width) + 1);
   };
@@ -53,13 +57,13 @@ const OnBoarding = () => {
   };
 
   return (
-    <View style={{flex: 1}} className="flex-1">
+    <View style={{ flex: 1 }} className="flex-1">
       <StatusBar style="light" />
 
       <LinearGradient
         colors={["#B29954", "#000000"]}
         locations={[0.3935, 1.1065]}
-        style={{flex: 1}}
+        style={{ flex: 1 }}
       >
         <View className="flex-1 relative items-center justify-center">
           <Image
@@ -102,50 +106,56 @@ const OnBoarding = () => {
             showsHorizontalScrollIndicator={false}
             onScroll={onScroll}
           >
-            {DATA.map((data: any, index) => (
-              <View
-                key={index}
-                className="justify-start flex-1"
-                style={{
-                  width: width,
-                  paddingHorizontal: 30,
-                }}
-              >
-                <View className="items-start flex-1 justify-start">
-                  <Text
-                    className="font-inter-light text-white"
+            {isLoading ? (
+              <ActivityIndicator color="white" size={"large"} />
+            ) : (
+              <>
+                {data?.data?.slides.map((data) => (
+                  <View
+                    key={data.id}
+                    className="justify-start flex-1"
                     style={{
-                      fontSize: 52,
-                      lineHeight: 60,
-                      marginBottom: -5,
+                      width: width,
+                      paddingHorizontal: 30,
                     }}
                   >
-                    {data.title}
-                  </Text>
-                  <Text
-                    className="font-inter-bold text-white"
-                    style={{
-                      fontSize: 58,
-                      lineHeight: 60,
-                      marginBottom: 5,
-                    }}
-                  >
-                    {data.desc}
-                  </Text>
-                  <Text
-                    className="font-inter-regular"
-                    style={{
-                      fontSize: 18,
-                      color: "rgba(255, 255, 255, 0.8)",
-                      lineHeight: 24,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {data.subtitle}
-                  </Text>
-                </View>
-              </View>
-            ))}
+                    <View className="items-start flex-1 justify-start">
+                      <Text
+                        className="font-inter-light text-white"
+                        style={{
+                          fontSize: 52,
+                          lineHeight: 60,
+                          marginBottom: -5,
+                        }}
+                      >
+                        {data.title}
+                      </Text>
+                      <Text
+                        className="font-inter-bold text-white"
+                        style={{
+                          fontSize: 58,
+                          lineHeight: 60,
+                          marginBottom: 5,
+                        }}
+                      >
+                        {data.title}
+                      </Text>
+                      <Text
+                        className="font-inter-regular"
+                        style={{
+                          fontSize: 18,
+                          color: "rgba(255, 255, 255, 0.8)",
+                          lineHeight: 24,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {data.description}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </>
+            )}
           </ScrollView>
         </View>
 

@@ -1,6 +1,8 @@
+import { toastConfig } from "@/constants/toastConfig";
 import "@/global.css";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { SessionProvider, useSession } from "@/lib/ctx";
+import { SessionProvider } from "@/lib/ctx";
 import { store } from "@/services/store";
 import {
   Inter_100Thin,
@@ -14,52 +16,45 @@ import {
   Inter_900Black,
   useFonts,
 } from "@expo-google-fonts/inter";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { router, Stack, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
+import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const colorScheme = useColorScheme();
+  const [loaded] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  });
 
-  const { session, isAuthenticated, isSessionLoading, isLoading } =
-    useSession();
-  const segments = useSegments();
+  useAuthGuard();
 
-  useEffect(() => {
-    if (isSessionLoading) return; // still checking storage, do nothing yet
+  if (!loaded) {
+    // Async font loading only occurs in development.
+    return null;
+  }
 
-    const inAuth = segments[0] === "(auth)";
-    const inMain = segments[0] === "(drawer)"; // adjust if you have other protected groups
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(drawers)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </>
+  );
+}
 
-    // Case 1: User is not logged in
-    if (!isAuthenticated) {
-      if (!inAuth) {
-        // they’re outside auth, force them into login
-        router.replace("/(auth)/login");
-      }
-      return;
-    }
-
-    // Case 2: User is logged in
-    if (isAuthenticated) {
-      if (inAuth) {
-        // don’t let logged-in users stay in login/register
-        router.replace("/(drawer)/(tabs)");
-      }
-      return;
-    }
-  }, [isAuthenticated, isSessionLoading, segments, router, session]);
+export default function RootLayoutNav() {
+  const [appReady, setAppReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
     "Inter-Thin": Inter_100Thin,
@@ -79,17 +74,19 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  if (isSessionLoading) {
-    return null;
-  }
-
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      setAppReady(true);
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
+  const onLayoutRootView = useCallback(async () => {
+    if (appReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appReady]);
+
+  if (!appReady) {
     return null;
   }
 
@@ -97,19 +94,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <SessionProvider>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="onboarding" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(drawers)" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
-          </ThemeProvider>
+          <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
+            <RootLayout />
+          </View>
         </SessionProvider>
+        <Toast topOffset={40} position="top" config={toastConfig} />
       </Provider>
     </GestureHandlerRootView>
   );

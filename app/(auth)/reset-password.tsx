@@ -1,17 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
+import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useAuthValidation } from "@/hooks/useAuthValidation";
 import { useSession } from "@/lib/ctx";
+import { ResetPasswordRequest } from "@/lib/type";
+import { useResetPasswordMutation } from "@/services/auth";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
   Image,
   Platform,
   ScrollView,
@@ -19,85 +21,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { z } from "zod";
 
 const ResetPassword = () => {
   const router = useRouter();
-  // const { resetPassword, isLoading, error, clearError, getTempEmail } =
-  //   useAuth();
-  const { errors, validatePassword, validateConfirmPassword, clearErrors } =
-    useAuthValidation();
+  const { hideAlert, requestResponse, setRequestResponse, showAlert } =
+    useSession();
 
-  const { isLoading } = useSession();
+  const { email, otpStr } = useLocalSearchParams<{
+    email: string;
+    otpStr: string;
+  }>();
 
-  const [formData, setFormData] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [email, setEmail] = useState("");
-
-  // useEffect(() => {
-  //   const loadEmail = async () => {
-  //     const tempEmail = await getTempEmail();
-  //     if (tempEmail) {
-  //       setEmail(tempEmail);
-  //     } else {
-  //       router.replace("/(auth)/forgot-password");
-  //     }
-  //   };
-
-  //   loadEmail();
-  //   clearError();
-  //   clearErrors();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert("Reset Failed", error, [{ text: "OK", onPress: clearError }]);
-  //   }
-  // }, [error]);
-
-  const handleInputChange =
-    (field: keyof typeof formData) => (value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-      clearErrors();
-    };
-
-  // const handleContinue = async () => {
-  //   clearError();
-  //   clearErrors();
-
-  //   const isPasswordValid = validatePassword(formData.newPassword);
-  //   const isConfirmPasswordValid = validateConfirmPassword(
-  //     formData.newPassword,
-  //     formData.confirmPassword
-  //   );
-
-  //   if (!isPasswordValid || !isConfirmPasswordValid) {
-  //     return;
-  //   }
-
-  //   const mockOTP = "123456";
-
-  //   try {
-  //     await resetPassword({
-  //       email: email,
-  //       newPassword: formData.newPassword,
-  //       confirmPassword: formData.confirmPassword,
-  //       otpCode: mockOTP,
-  //     });
-
-  //     Alert.alert(
-  //       "Password Reset Successful",
-  //       "Your password has been reset successfully. Please login with your new password.",
-  //       [
-  //         {
-  //           text: "OK",
-  //           onPress: () => router.push("/(auth)/login"),
-  //         },
-  //       ]
-  //     );
-  //   } catch (resetError) {}
-  // };
+  const [performResetPassword, { isLoading }] = useResetPasswordMutation();
 
   const handleBackToSignIn = () => {
     router.push("/(auth)/login");
@@ -105,6 +41,64 @@ const ResetPassword = () => {
 
   const handleGoBack = () => {
     router.back();
+  };
+
+  const schema = z
+    .object({
+      otp: z.string().optional(),
+      email: z.string().optional(),
+      new_password: z.string().trim().min(6, "New password is required"),
+      confirm_password: z
+        .string()
+        .trim()
+        .min(6, "Please confirm your password"),
+    })
+    .refine((data) => data.new_password === data.confirm_password, {
+      message: "Passwords do not match",
+      path: ["confirm_password"], // where the error appears
+    });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema), // Use Zod resolver
+  });
+
+  const onSubmit = async (data: ResetPasswordRequest) => {
+    try {
+      console.log(">>>>>data", email, otpStr, data);
+
+      const response = await performResetPassword({
+        email,
+        otp: otpStr,
+        new_password: data.new_password,
+        confirm_password: data.confirm_password,
+      }).unwrap();
+      console.log(">>>>>respomse", email, otpStr, data);
+
+      if (response.status === 200) {
+        setRequestResponse({
+          status: response.status,
+          title: response.message,
+          message: response.data.message,
+          type: "success",
+        });
+        showAlert();
+        router.push("/(auth)/login");
+        return Promise.resolve();
+      }
+    } catch (error: any) {
+      console.log(">>>errpr", error);
+      setRequestResponse({
+        status: error.data.status,
+        title: error.data.message,
+        type: "error",
+      });
+      showAlert();
+      return Promise.reject(error);
+    }
   };
 
   return (
@@ -158,49 +152,39 @@ const ResetPassword = () => {
             <View className="mt-5">
               <View>
                 <Input
+                  control={control}
+                  errors={errors.new_password}
+                  name="new_password"
                   backround
                   inputLg
                   type="password"
-                  placeholder="New Password"
-                  value={formData.newPassword}
-                  onChangeText={handleInputChange("newPassword")}
+                  placeholder="New password"
                   icon={<Feather name="lock" size={20} color="#000" />}
                 />
-                {errors.password && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.password}
-                  </Text>
-                )}
               </View>
 
               <View className="mt-[15px]">
                 <Input
+                  control={control}
+                  errors={errors.confirm_password}
+                  name="confirm_password"
                   backround
                   inputLg
                   type="password"
-                  placeholder="Confirm New Password"
-                  value={formData.confirmPassword}
-                  onChangeText={handleInputChange("confirmPassword")}
+                  placeholder="Confirm password"
                   icon={<Feather name="lock" size={20} color="#000" />}
                 />
-                {errors.confirmPassword && (
-                  <Text className="text-[12px] text-red-500 font-inter-regular mt-[5px]">
-                    {errors.confirmPassword}
-                  </Text>
-                )}
               </View>
             </View>
 
             <View className="mt-[30px] mb-5 relative">
               <Button
-                title={isLoading ? "Updating..." : "Continue"}
-                // onPress={handleContinue}
+                loading={isLoading}
+                textClassName="text-white items-center text-[20px] font-inter-medium  "
+                className="mt-3 h-[54px]  bg-secondary"
+                children="Sign In"
+                onPress={handleSubmit(onSubmit)}
               />
-              {isLoading && (
-                <View className="absolute right-5 top-1/2 -translate-y-[10px]">
-                  <ActivityIndicator size="small" color="#fff" />
-                </View>
-              )}
             </View>
           </View>
         </View>

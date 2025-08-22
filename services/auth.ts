@@ -1,15 +1,24 @@
-import { LoginRequest, LoginResponse, RegisterRequest } from "@/lib/type";
+import {
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  LoginRequest,
+  LoginResponse,
+  OtpConfirmationRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+  WelcomeSlides,
+} from "@/lib/type";
 import { api } from "./base";
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSplash: builder.query({
+    getSplash: builder.query<WelcomeSlides, void>({
       query: () => ({
         url: `/splash`,
         method: "GET",
       }),
     }),
-    getWelcome: builder.query({
+    getWelcome: builder.query<WelcomeSlides, void>({
       query: () => ({
         url: `/welcome`,
         method: "GET",
@@ -31,8 +40,45 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: [],
     }),
+    sendOtp: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (data) => ({
+        url: `/auth/send-otp`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: [],
+    }),
+    otpConfirm: builder.mutation<
+      ForgotPasswordResponse,
+      OtpConfirmationRequest
+    >({
+      query: (data) => ({
+        url: `/auth/otp-confirm`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: [],
+    }),
+    resetPassword: builder.mutation<
+      ForgotPasswordResponse,
+      ResetPasswordRequest
+    >({
+      query: (data) => ({
+        url: `/auth/reset-password`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: [],
+    }),
   }),
 });
 
-export const { useGetSplashQuery, useSigninMutation, useSignupMutation } =
-  authApi;
+export const {
+  useGetSplashQuery,
+  useGetWelcomeQuery,
+  useSigninMutation,
+  useSignupMutation,
+  useSendOtpMutation,
+  useOtpConfirmMutation,
+  useResetPasswordMutation,
+} = authApi;

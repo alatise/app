@@ -1,19 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import Button from "@/components/Button/Button";
 import OTPInput from "@/components/Input/OTPInput";
+import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
 // import { useAuth } from "@/contexts/AuthContext";
-import { useAuthValidation } from "@/hooks/useAuthValidation";
 import { useSession } from "@/lib/ctx";
+import { useOtpConfirmMutation, useSendOtpMutation } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
   Image,
   Platform,
   ScrollView,
@@ -23,73 +21,18 @@ import {
 } from "react-native";
 
 const OTPAuthentication = () => {
+  const { alertVisible, showAlert, requestResponse, setRequestResponse } =
+    useSession();
   const router = useRouter();
-  // const {
-  //   verifyOTP,
-  //   forgotPassword,
-  //   isLoading,
-  //   error,
-  //   clearError,
-  //   getTempEmail,
-  // } = useAuth();
-  const {isLoading} = useSession()
-  const { errors, validateOTP, clearErrors } = useAuthValidation();
+  const [otpStr, setOtpStr] = useState("");
 
-  const [otpCode, setOTPCode] = useState("");
-  const [isPinReady, setIsPinReady] = useState(false);
-  const [email, setEmail] = useState("");
-  const maximumCodeLength = 6;
+  const [performSendOtp, { isLoading: sendingOtp }] = useSendOtpMutation();
 
-  // useEffect(() => {
-  //   const loadEmail = async () => {
-  //     const tempEmail = await getTempEmail();
-  //     if (tempEmail) {
-  //       setEmail(tempEmail);
-  //     } else {
-  //       router.replace("/(auth)/forgot-password");
-  //     }
-  //   };
+  const [performOtpConfirmation, { isLoading }] = useOtpConfirmMutation();
 
-  //   loadEmail();
-  //   clearError();
-  //   clearErrors();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert("Verification Failed", error, [
-  //       { text: "OK", onPress: clearError },
-  //     ]);
-  //   }
-  // }, [error]);
-
-  // const handleProceed = async () => {
-  //   clearError();
-  //   clearErrors();
-
-  //   if (!validateOTP(otpCode, maximumCodeLength)) {
-  //     return;
-  //   }
-
-  //   try {
-  //     await verifyOTP(email, otpCode);
-
-  //     router.push("/(auth)/reset-password");
-  //   } catch (verifyError) {}
-  // };
-
-  // const handleResend = async () => {
-  //   if (!email) return;
-
-  //   try {
-  //     await forgotPassword({ email });
-  //     Alert.alert(
-  //       "Code Sent",
-  //       "A new verification code has been sent to your email."
-  //     );
-  //     setOTPCode("");
-  //   } catch (resendError) {}
-  // };
+  const { email } = useLocalSearchParams<{
+    email: string;
+  }>();
 
   const handleBackToSignIn = () => {
     router.push("/(auth)/login");
@@ -97,6 +40,51 @@ const OTPAuthentication = () => {
 
   const handleGoBack = () => {
     router.back();
+  };
+
+  const onSubmit = async () => {
+    try {
+      const response = await performOtpConfirmation({
+        email,
+        otp: otpStr,
+        otp_type: "password_reset",
+      }).unwrap();
+      if (response.status === 200) {
+        router.push({
+          pathname: "/(auth)/reset-password",
+          params: {
+            otpStr,
+            email,
+          },
+        });
+        return Promise.resolve();
+      }
+    } catch (error: any) {
+      setRequestResponse({
+        status: error.data.status,
+        title: error.data.message,
+        type: "error",
+      });
+      showAlert();
+      return Promise.reject(error);
+    }
+  };
+
+  const resend = async () => {
+    const response = await performSendOtp({
+      email,
+      otp_type: "password_reset",
+    }).unwrap();
+    if (response.status === 200) {
+      setRequestResponse({
+        status: response.status,
+        title: response.message,
+        message: response.data.message,
+        type: "success",
+      });
+      showAlert();
+      return Promise.resolve();
+    }
   };
 
   return (
@@ -143,31 +131,18 @@ const OTPAuthentication = () => {
               </Text>
               <Text className="text-[15px] text-black font-inter-regular mt-[5px]">
                 An Authentication Code Has Been Sent To{"\n"}
-                <Text className="underline text-primary">
-                  {email || "your email"}
-                </Text>
+                <Text className="underline text-primary">{email}</Text>
               </Text>
             </View>
 
             <View className="mt-5">
-              <OTPInput
-                code={otpCode}
-                setCode={setOTPCode}
-                maximumLength={maximumCodeLength}
-                setIsPinReady={setIsPinReady}
-              />
-
-              {errors.otp && (
-                <Text className="text-[12px] text-red-500 font-inter-regular mt-[10px] text-center">
-                  {errors.otp}
-                </Text>
-              )}
+              <OTPInput setOtpStr={setOtpStr} length={6} />
 
               <View className="items-center flex-row justify-center mt-5">
                 <Text className="text-[15px] text-text font-inter-regular">
                   If you don&apos;t receive code!{" "}
                 </Text>
-                <TouchableOpacity disabled={isLoading}>
+                <TouchableOpacity onPress={resend} disabled={isLoading}>
                   <Text className="text-[15px] text-title font-inter-medium underline">
                     Resend
                   </Text>
@@ -177,17 +152,15 @@ const OTPAuthentication = () => {
           </View>
         </View>
 
-        <View className={`${GlobalClasses.container} px-5 pb-[30px]`}>
+        <View className={`${GlobalClasses.container} px-5 mb-[30px]`}>
           <View className="relative mb-[10px]">
             <Button
-              title={isLoading ? "Verifying..." : "Proceed"}
-              // onPress={handleProceed}
+              loading={isLoading || sendingOtp}
+              textClassName="text-white items-center text-[20px] font-inter-medium "
+              className="mt-3 h-[54px]  bg-secondary"
+              children="Send Mail"
+              onPress={onSubmit}
             />
-            {isLoading && (
-              <View className="absolute right-5 top-1/2 -translate-y-[10px]">
-                <ActivityIndicator size="small" color="#fff" />
-              </View>
-            )}
           </View>
 
           <View className="items-center flex-row justify-center pt-[10px]">
@@ -202,6 +175,13 @@ const OTPAuthentication = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.title}
+        message={requestResponse.message}
+        type={requestResponse.type!}
+      /> */}
     </View>
   );
 };
