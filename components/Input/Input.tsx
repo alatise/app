@@ -147,7 +147,7 @@ const Input = ({
         )}
       </View>
       {errors?.message && name !== "password1" && (
-        <Text className="text-red-500 text-sm font-inter-regular pt-2">
+        <Text className="text-red-500 text-sm font-inter-regular pt-[9px]">
           {errors.message}.
         </Text>
       )}
