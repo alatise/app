@@ -6,6 +6,7 @@ import {
   OtpConfirmationRequest,
   RegisterRequest,
   ResetPasswordRequest,
+  User,
   WelcomeSlides,
 } from "@/lib/type";
 import { api } from "./base";
@@ -30,7 +31,7 @@ export const authApi = api.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: [],
+      invalidatesTags: ["Profile"],
     }),
     signup: builder.mutation<LoginResponse, RegisterRequest>({
       query: (data) => ({
@@ -70,6 +71,24 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: [],
     }),
+    getProfile: builder.query<{ data: User }, void>({
+      query: () => ({
+        url: `/profile`,
+        method: "GET",
+      }),
+      providesTags: ["Profile"],
+    }),
+    editProfile: builder.mutation<
+      LoginResponse,
+      { name: string; phone: string }
+    >({
+      query: (data) => ({
+        url: `/profile/edit`,
+        method: "PUT",
+        data,
+      }),
+      invalidatesTags: ["Profile"],
+    }),
   }),
 });
 
@@ -81,4 +100,6 @@ export const {
   useSendOtpMutation,
   useOtpConfirmMutation,
   useResetPasswordMutation,
+  useGetProfileQuery,
+  useEditProfileMutation,
 } = authApi;

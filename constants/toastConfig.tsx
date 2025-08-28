@@ -1,4 +1,4 @@
-import { useSession } from "@/lib/ctx";
+import { useSession } from "@/lib/authCtx";
 import { CheckCircle, XCircle } from "lucide-react-native"; // example icon lib
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { BaseToast, ErrorToast } from "react-native-toast-message";

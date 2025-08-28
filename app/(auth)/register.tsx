@@ -7,7 +7,7 @@ import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
 import { CustomAlert } from "@/constants/toastConfig";
 // import { useAuth } from "@/contexts/AuthContext";
-import { useSession } from "@/lib/ctx";
+import { useSession } from "@/lib/authCtx";
 import { RegisterRequest } from "@/lib/type";
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";

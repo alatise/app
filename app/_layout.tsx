@@ -2,7 +2,9 @@ import { toastConfig } from "@/constants/toastConfig";
 import "@/global.css";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { SessionProvider } from "@/lib/ctx";
+import { SessionProvider } from "@/lib/authCtx";
+import { ProductProvider } from "@/lib/productsCtx";
+import { WishlistProvider } from "@/lib/wishlistCtx";
 import { store } from "@/services/store";
 import {
   Inter_100Thin,
@@ -94,9 +96,13 @@ export default function RootLayoutNav() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <SessionProvider>
-          <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
-            <RootLayout />
-          </View>
+          <ProductProvider>
+            <WishlistProvider>
+              <View onLayout={onLayoutRootView} style={{ flex: 1 }}>
+                <RootLayout />
+              </View>
+            </WishlistProvider>
+          </ProductProvider>
         </SessionProvider>
         <Toast topOffset={40} position="top" config={toastConfig} />
       </Provider>

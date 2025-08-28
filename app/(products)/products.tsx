@@ -1,64 +1,129 @@
+import Arrow from "@/assets/images/iconsvg/arrowleft2.svg";
+import Cart from "@/assets/images/iconsvg/cart2.svg";
 
-import Arrow from '@/assets/images/iconsvg/arrowleft2.svg';
-import Cart from '@/assets/images/iconsvg/cart.svg';
-import Grid from '@/assets/images/iconsvg/gridicon.svg';
-import Search from '@/assets/images/iconsvg/search2.svg';
-import User from '@/assets/images/iconsvg/user2.svg';
-import FilterModal from '@/components/Products/FilterModal';
-import { products } from '@/components/Products/product';
-import { NewProductGridCard, NewProductListCard } from '@/components/Products/ProductCard';
+import Grid from "@/assets/images/iconsvg/gridicon.svg";
+import Search from "@/assets/images/iconsvg/search2.svg";
+import User from "@/assets/images/iconsvg/user2.svg";
+import FilterModal from "@/components/Products/FilterModal";
+import {
+  NewProductGridCard,
+  NewProductListCard,
+} from "@/components/Products/ProductCard";
+import { ProductCategoryItem } from "@/components/Shared/CategoryItem";
+import { useProductCtx } from "@/lib/productsCtx";
+import { useGetCartQuery } from "@/services/cart";
+import {
+  useGetCategoriesQuery,
+  useGetProductsByCategoryIdQuery,
+} from "@/services/products";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
-  BottomSheetView
-} from '@gorhom/bottom-sheet';
-import { router } from 'expo-router';
-import React, { useCallback, useRef, useState } from 'react';
-import { FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
+import React, { useCallback, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Products = () => {
-  const categories = [
-    "Crazy Deals",
-    "Budget Buys",
-    "Gold",
-    "Silver",
-    "Diamond",
-    "Platinum",
-    "Pearl",
+  const { data, isLoading: loadingCategories } = useGetCategoriesQuery();
+  const categories = data?.data?.categories.map((c) => c);
+  const { data: cart, isLoading: loadingCart } = useGetCartQuery();
+
+  const {
+    selectCategory,
+    setSelectCategory,
+    currentPage,
+    setCurrentPage,
+    hasMore,
+    setHasMore,
+  } = useProductCtx();
+
+  const sortedCategories = [
+    {
+      id: 0,
+      name: "All",
+      slug: "",
+      image_url: "",
+      product_count: 0,
+      subcategories: [],
+    },
+    ...(categories ?? []),
   ];
 
-  const filterRef = useRef<BottomSheetModal>(null)
+  const filterRef = useRef<BottomSheetModal>(null);
 
-
-  const [toggleGrid, setToggleGrid] = useState(false)
+  const [toggleGrid, setToggleGrid] = useState(false);
 
   function openFilterModal(open: boolean) {
-    open
-      ? filterRef.current?.present()
-      : filterRef.current?.dismiss()
+    open ? filterRef.current?.present() : filterRef.current?.dismiss();
   }
+
+  const {
+    data: categoryProducts,
+    isLoading: loadingProducts,
+    isFetching,
+  } = useGetProductsByCategoryIdQuery({
+    id: selectCategory!?.id,
+    page: currentPage,
+    per_page: 15,
+  });
+
+  const loadMore = useCallback(() => {
+    if (!loadingProducts && !isFetching && hasMore && categoryProducts) {
+      setCurrentPage(currentPage + 1);
+    }
+  }, [
+    loadingProducts,
+    isFetching,
+    hasMore,
+    categoryProducts,
+    currentPage,
+    setCurrentPage,
+  ]);
+
+  const onEndReached = useCallback(() => {
+    loadMore();
+  }, [loadMore]);
+
+  const renderFooter = () => {
+    if (!isFetching) return null;
+    return (
+      <View className="py-4 items-center">
+        <ActivityIndicator size="small" color="#000" />
+      </View>
+    );
+  };
 
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
-        pressBehavior={'collapse'}
+        pressBehavior={"collapse"}
         opacity={0.7}
         {...props}
         appearsOnIndex={0}
         disappearsOnIndex={-1}
         onPress={() => {
-          filterRef.current?.dismiss()
+          filterRef.current?.dismiss();
         }}
       />
     ),
-    [],
-  )
-
+    []
+  );
 
   return (
-    <SafeAreaView style={{ flex: 1 }} >
+    <SafeAreaView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <View className="flex-1 bg-white pt-10 px-4">
           <View className="flex-1">
@@ -78,51 +143,96 @@ const Products = () => {
                 </View>
 
                 <View className="flex-row items-center gap-4">
-                  <Grid onPress={() => setToggleGrid(!toggleGrid)} width={18} height={18} />
-                  <Cart onPress={() => router.push('/myCart')} width={28} height={28} />
+                  <Grid
+                    onPress={() => setToggleGrid(!toggleGrid)}
+                    width={18}
+                    height={18}
+                  />
+                  <Pressable className="relative">
+                    {loadingCart ? (
+                      <ActivityIndicator size={"small"} />
+                    ) : (
+                      <Cart
+                        onPress={() => router.push("/myCart")}
+                        width={35}
+                        height={35}
+                      />
+                    )}
+                    <View className="bg-red-500 absolute flex-row justify-center items-center w-[16px] top-0 right-0 h-[16px]  rounded-full">
+                      <Text className="text-white font-inter-regular text-[11px]">
+                        {cart?.data.item_count}
+                      </Text>
+                    </View>
+                  </Pressable>
                 </View>
               </View>
 
-              {/* Horizontal scroll categories */}
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4">
-                {categories.map((c, i) => (
-                  <View
-                    key={i}
-                    className={`rounded-[8px] h-[38px] items-center flex-row px-8 mr-5 ${i === 0 ? 'bg-black' : 'bg-[#F2F2F2]'
-                      }`}
-                  >
-                    <Text
-                      className={`text-[13px] font-montserrat-Regular ${i === 0 ? 'text-white' : 'text-[#222]'
-                        }`}
-                    >
-                      {c}
-                    </Text>
-                  </View>
-                ))}
-              </ScrollView>
-
-              <View className="bg-[#999999] w-full h-[53px] rounded-[8px] mt-6" />
+              <FlatList
+                showsHorizontalScrollIndicator={false}
+                horizontal
+                data={sortedCategories}
+                renderItem={({ item }) => (
+                  <ProductCategoryItem
+                    setSelectCategory={setSelectCategory!}
+                    selectCategory={selectCategory!}
+                    item={item}
+                  />
+                )}
+                style={{ marginTop: 20 }}
+                keyExtractor={(item) => `${item.id}`}
+              />
 
               {/* Product grid or list */}
-              {toggleGrid ? (
-                <View className="mt-5">
-                  <FlatList
-                    data={products}
-                    showsVerticalScrollIndicator={false}
-                    numColumns={2}
-                    renderItem={({ item, index }) => <NewProductGridCard key={index} />}
-                    columnWrapperStyle={{
-                      justifyContent: 'space-between',
-                      marginBottom: 20,
-                    }}
-                  />
+              {isFetching && currentPage === 1 ? (
+                // Category switched → full loader
+                <View className="flex-1 items-center justify-center py-10">
+                  <ActivityIndicator size="large" />
+                  <Text className="mt-2">Loading products...</Text>
                 </View>
               ) : (
-                <View className="mt-5">
-                  {products.map((p, i) => (
-                    <NewProductListCard key={i} />
-                  ))}
-                </View>
+                <>
+                  {toggleGrid ? (
+                    <View className="mt-5">
+                      <FlatList
+                        key={"grid"}
+                        data={categoryProducts?.data.products ?? []}
+                        showsVerticalScrollIndicator={false}
+                        numColumns={2}
+                        renderItem={({ item, index }) => (
+                          <NewProductGridCard {...item} key={index} />
+                        )}
+                        columnWrapperStyle={{
+                          justifyContent: "space-between",
+                          marginBottom: 20,
+                        }}
+                        onEndReached={hasMore ? onEndReached : null}
+                        onEndReachedThreshold={0.5}
+                        ListFooterComponent={renderFooter}
+                        keyExtractor={(item, index) => `${item.id}+${index} `}
+                        removeClippedSubviews={true} // perf
+                        maxToRenderPerBatch={10}
+                        windowSize={10}
+                      />
+                    </View>
+                  ) : (
+                    <View className="mt-5">
+                      <FlatList
+                        key={"list"}
+                        data={categoryProducts?.data.products ?? []}
+                        renderItem={({ item, index }) => (
+                          <NewProductListCard {...item} key={index} />
+                        )}
+                        onEndReached={hasMore ? onEndReached : null}
+                        onEndReachedThreshold={0.5}
+                        ListFooterComponent={renderFooter}
+                        keyExtractor={(item, index) => `${item.id}+${index} `}
+                        removeClippedSubviews={true} // perf
+                        maxToRenderPerBatch={10}
+                        windowSize={10}
+                      />
+                    </View>
+                  )}
+                </>
               )}
             </ScrollView>
 
@@ -130,15 +240,24 @@ const Products = () => {
             <View className="flex-row items-center justify-center gap-6 border-t border-[#D9D9D9] px-4 py-4 bg-white">
               <View className="flex-row items-center gap-2 border-[#D9D9D9] border-r pr-4">
                 <User />
-                <Text className="font-montserrat-Regular text-[15px]">GENDER</Text>
+                <Text className="font-montserrat-Regular text-[15px]">
+                  GENDER
+                </Text>
               </View>
               <View className="flex-row items-center gap-2 border-[#D9D9D9] border-r px-4">
                 <User />
-                <Text className="font-montserrat-Regular text-[15px]">SORT</Text>
+                <Text className="font-montserrat-Regular text-[15px]">
+                  SORT
+                </Text>
               </View>
-              <TouchableOpacity onPress={() => openFilterModal(true)} className="flex-row items-center gap-2 px-4">
+              <TouchableOpacity
+                onPress={() => openFilterModal(true)}
+                className="flex-row items-center gap-2 px-4"
+              >
                 <User />
-                <Text className="font-montserrat-Regular text-[15px]">FILTER</Text>
+                <Text className="font-montserrat-Regular text-[15px]">
+                  FILTER
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -147,7 +266,7 @@ const Products = () => {
         <BottomSheetModal
           ref={filterRef}
           index={0}
-          snapPoints={['80%']}
+          snapPoints={["80%"]}
           containerStyle={{
             zIndex: 20,
           }}
@@ -159,14 +278,7 @@ const Products = () => {
         </BottomSheetModal>
       </BottomSheetModalProvider>
     </SafeAreaView>
+  );
+};
 
-
-  )
-}
-
-export default Products
-
-
-
-
-
+export default Products;

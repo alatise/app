@@ -5,7 +5,7 @@ import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
 // import { useAuth } from "@/contexts/AuthContext";
-import { useSession } from "@/lib/ctx";
+import { useSession } from "@/lib/authCtx";
 import { useOtpConfirmMutation, useSendOtpMutation } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";

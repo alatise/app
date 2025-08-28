@@ -50,9 +50,9 @@ const BottomMenu = ({ state, navigation, descriptors }: Props) => {
   return (
     <View className={`${theme.dark ? "bg-white" : "bg-card"}`}>
       <View
-        className={`h-[70px] border-t ${theme.dark ? "border-dark-border" : "border-border-color"}`}
+        className={`h-[80px] border-t ${theme.dark ? "border-dark-border" : "border-border-color"}`}
       >
-        <View className={`${GlobalClasses.container} flex-row px-0 py-0`}>
+        <View className={`${GlobalClasses.container} flex-row  px-0 pt-2`}>
           {state.routes.map((route: any, index: number) => {
             const { options } = descriptors[route.key];
             const label =

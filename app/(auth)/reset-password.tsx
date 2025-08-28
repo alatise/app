@@ -4,7 +4,7 @@ import Input from "@/components/Input/Input";
 import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useSession } from "@/lib/ctx";
+import { useSession } from "@/lib/authCtx";
 import { ResetPasswordRequest } from "@/lib/type";
 import { useResetPasswordMutation } from "@/services/auth";
 import { Feather, Ionicons } from "@expo/vector-icons";
@@ -68,16 +68,12 @@ const ResetPassword = () => {
 
   const onSubmit = async (data: ResetPasswordRequest) => {
     try {
-      console.log(">>>>>data", email, otpStr, data);
-
       const response = await performResetPassword({
         email,
         otp: otpStr,
         new_password: data.new_password,
         confirm_password: data.confirm_password,
       }).unwrap();
-      console.log(">>>>>respomse", email, otpStr, data);
-
       if (response.status === 200) {
         setRequestResponse({
           status: response.status,
@@ -90,7 +86,6 @@ const ResetPassword = () => {
         return Promise.resolve();
       }
     } catch (error: any) {
-      console.log(">>>errpr", error);
       setRequestResponse({
         status: error.data.status,
         title: error.data.message,

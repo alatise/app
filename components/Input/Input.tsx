@@ -2,7 +2,13 @@ import { COLORS, FONTS } from "@/constants/theme";
 import { Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Controller, FieldError } from "react-hook-form";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type Props = {
   control?: any;
@@ -26,6 +32,7 @@ type Props = {
   backround?: any;
   keyboardType?: any;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  disable?: boolean;
 };
 
 const Input = ({
@@ -49,7 +56,8 @@ const Input = ({
   control,
   required,
   name,
-  errors
+  errors,
+  disable,
 }: Props) => {
   const [showPass, setShowPass] = useState<boolean>(true);
 
@@ -80,6 +88,7 @@ const Input = ({
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
+              editable={!disable}
               style={[
                 styles.input,
                 {

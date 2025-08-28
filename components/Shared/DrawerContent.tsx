@@ -1,6 +1,6 @@
 import Arrow from "@/assets/images/iconsvg/arrowright.svg";
 import { IMAGES } from "@/constants/Images";
-import { useSession } from "@/lib/ctx";
+import { useSession } from "@/lib/authCtx";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";

@@ -32,9 +32,7 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <ActivityIndicator size="small" color={"white"} />
       ) : (
-        <Text
-          className={` font-semibold  text-center ${textClassName}`}
-        >
+        <Text className={` font-semibold  text-center ${textClassName}`}>
           {children}
         </Text>
       )}

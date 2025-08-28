@@ -19,9 +19,11 @@ const axiosBaseQuery =
       let headers: AxiosRequestConfig["headers"] = {};
       const session = SecureStore.getItem("session");
 
-      // if (session) {
-      //   headers.Authorization = `Bearer ${session}`;
-      // }
+      if (session) {
+        headers.Authorization = `Bearer ${session}`;
+      }
+
+      console.log(">>>>> baseUrl + url", baseUrl + url, session);
 
       const result = await axios({ url: baseUrl + url, method, data, headers });
 
@@ -62,15 +64,7 @@ export const api = createApi({
    * Tag types must be defined in the original API definition
    * for any tags that would be provided by injected endpoints
    */
-  tagTypes: [
-    "plaid",
-    "kyc",
-    "wallet",
-    "transaction",
-    "auth",
-    "payout",
-    "destination",
-  ],
+  tagTypes: ["Products", "Profile", "Carts", "DeliveryAddress", "Cards"],
   /**
    * This api has endpoints injected in adjacent files,
    * which is why no endpoints are shown below.

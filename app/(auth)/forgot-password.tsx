@@ -4,7 +4,7 @@ import Input from "@/components/Input/Input";
 import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
-import { useSession } from "@/lib/ctx";
+import { useSession } from "@/lib/authCtx";
 // import { useAuth } from "@/contexts/AuthContext";
 import { ForgotPasswordRequest } from "@/lib/type";
 import { useSendOtpMutation } from "@/services/auth";
@@ -25,13 +25,7 @@ import {
 import { z } from "zod";
 
 const ForgotPassword = () => {
-  const {
-    signIn,
-    alertVisible,
-    showAlert,
-    requestResponse,
-    setRequestResponse,
-  } = useSession();
+  const { showAlert, requestResponse, setRequestResponse } = useSession();
 
   const [performSendOtp, { isLoading }] = useSendOtpMutation();
 
@@ -181,12 +175,6 @@ const ForgotPassword = () => {
           </View>
         </View>
       </ScrollView>
-      {/* <CustomAlert
-        visible={alertVisible}
-        title={requestResponse.title}
-        message={requestResponse.message}
-        type={requestResponse.type!}
-      /> */}
     </View>
   );
 };
