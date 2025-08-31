@@ -38,11 +38,14 @@ const ProductsView = () => {
     per_page: 16,
   });
 
-  const products = categoryProducts?.data;
+  console.log(">>>>loadingPorducts", loadingProducts);
+
+  const products = categoryProducts?.data.products;
 
   useEffect(() => {
     if (categoryProducts) {
-      const isLastPage = currentPage >= products!.pagination.total_pages;
+      const isLastPage =
+        currentPage >= categoryProducts?.data.pagination.total_pages;
       setHasMore(!isLastPage);
       setIsLoadingMore(false);
       // Update the last loaded page when data successfully loads
@@ -71,6 +74,7 @@ const ProductsView = () => {
 
     console.log("Loading more - Current page:", currentPage);
     setIsLoadingMore(true);
+    //@ts-expect-error
     setCurrentPage((prev: any) => prev + 1);
   }, [
     isLoadingMore,
@@ -147,39 +151,37 @@ const ProductsView = () => {
   ];
 
   return (
-    <View className="mt-4 mb-20">
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        data={products!?.products ?? []}
-        numColumns={2}
-        renderItem={({ item }) => <ProductCard {...item} />}
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          marginBottom: 10,
-        }}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        ListFooterComponent={renderFooter}
-        keyExtractor={(item, index) => `${item.id}+${index}`}
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-      />
-
-      {isFetching && products!?.products?.length === 0 && (
-        <View
-          style={{ backgroundColor: "red" }}
-          className="absolute top-0 left-0 right-0 bottom-0 bg-red-200 flex items-center justify-center z-10"
-        >
-          <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-2 text-base font-inter-medium">
+    <View className="mt-4">
+      {isFetching && currentPage === 1 ? (
+        <View className="flex items-center justify-center mt-20">
+          <ActivityIndicator size="small" color="#B29954" />
+          <Text className="mt-2 text-black text-sm font-inter-medium">
             Loading products...
           </Text>
         </View>
+      ) : (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={products ?? []}
+          numColumns={2}
+          renderItem={({ item }) => <ProductCard {...item} />}
+          columnWrapperStyle={{
+            justifyContent: "space-between",
+            marginBottom: 20,
+          }}
+          //@ts-expect-error
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          ListFooterComponent={renderFooter}
+          keyExtractor={(item, index) => `${item.id}+${index}`}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+        />
       )}
 
       {/* 🔹 Overlay while fetching next page (not initial) */}
-      {isFetching && products!?.products.length > 0 && (
+      {isLoadingMore && (
         <View className="absolute bottom-6 left-0 right-0 flex items-center">
           <View className="px-4 py-2 bg-black/70 rounded-full flex-row items-center">
             <ActivityIndicator size="small" color="#fff" />

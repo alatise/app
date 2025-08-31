@@ -1,16 +1,16 @@
 import Add from "@/assets/images/iconsvg/add.svg";
 import Arrow2 from "@/assets/images/iconsvg/arrowright2.svg";
 import Arrow from "@/assets/images/iconsvg/goldenarrow.svg";
-import Product1 from "@/assets/images/iconsvg/product1.svg";
 import Star from "@/assets/images/iconsvg/star.svg";
 import Substract from "@/assets/images/iconsvg/substract.svg";
 import Trash from "@/assets/images/iconsvg/trash.svg";
 import NoStar from "@/assets/images/iconsvg/unstar.svg";
+import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductCtx } from "@/lib/productsCtx";
 
 import { CartItem, Product } from "@/lib/type";
 import { useWishlist } from "@/lib/wishlistCtx";
-import { useUpdateCartMutation } from "@/services/cart";
+import { useGetCartQuery, useUpdateCartMutation } from "@/services/cart";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -39,6 +39,17 @@ export const GridProductCard = ({
   onRemove,
 }: GridProductCardProp) => {
   const { name, image_url, price, quantity, product_id, cart_item_key } = item;
+  const { data: cart, isLoading: loadingCart } = useGetCartQuery();
+
+  const {
+    calculations,
+    updateQuantity,
+    removeItem,
+    getFinalCartData,
+    getItemQuantity,
+  } = useLocalCart(cart?.data.items);
+
+  const finalCartData = getFinalCartData();
 
   const [updateCartItem, { isLoading: addingToCart }] = useUpdateCartMutation();
 
@@ -57,20 +68,35 @@ export const GridProductCard = ({
 
   return (
     <View
-      className={`bg-white flex-row px-3 pb-6 pt-1 mt-10 justify-between ${order ? "items-center" : "items-end"}   shadow-black shadow border-[0.2px] border-[#ccc] rounded-[12px]`}
+      className={`bg-white flex-row px-3  py-3 mt-10 justify-between ${order ? "items-center" : "items-end"}   shadow-black shadow border-[0.2px] border-[#ccc] rounded-[12px]`}
     >
-      <Product1 width={105} height={103} />
+      {/* <Product1 width={105} height={103} /> */}
 
-      <View className="w-[107px]">
-        <Text className="text-[11px] font-inter-regular">{name}</Text>
-        <Text className="text-[13px] font-inter-semibold pt-2">
-          {" "}
-          £ {(price * currentQuantity).toFixed(2)}
-        </Text>
+      <View className="bg-[#999999] rounded-[12px]">
+        <Image
+          source={{ uri: image_url }}
+          width={105}
+          height={103}
+          className="rounded-[12px] "
+        />
+      </View>
 
-        {order ? (
-          <View> </View>
-        ) : (
+      {order ? (
+        <View className="w-[107px]">
+          <Text className="text-[11px] font-inter-regular">{name}</Text>
+          <Text className="text-[13px] font-inter-semibold pt-2">
+            {" "}
+            £ {(price * currentQuantity).toFixed(2)}
+          </Text>
+        </View>
+      ) : (
+        <View className="w-[107px]">
+          <Text className="text-[11px] font-inter-regular">{name}</Text>
+          <Text className="text-[13px] font-inter-semibold pt-2">
+            {" "}
+            £ {(price * currentQuantity).toFixed(2)}
+          </Text>
+
           <View className="flex-row gap-4 items-center pt-3">
             <Substract onPress={handleDecrease} />
             {addingToCart ? (
@@ -82,11 +108,19 @@ export const GridProductCard = ({
             )}
             <Add onPress={handleIncrease} />
           </View>
-        )}
-      </View>
+        </View>
+      )}
 
       {order ? (
-        <View> </View>
+        <View>
+          {" "}
+          <Text
+            onPress={() => router.push("/(order)/writeReview")}
+            className="font-montserrat-Medium text-sm bg-[#F6F6F6] p-2 rounded-[10px]"
+          >
+            Write Review
+          </Text>
+        </View>
       ) : (
         <Pressable onPress={onRemove} className="flex-row gap-1 items-center">
           <Trash />
@@ -111,9 +145,9 @@ const ProductCard = ({ ...item }: Product) => {
         setProduct(item);
         router.push("/(products)/productDetails");
       }}
-      className="bg-white w-[48%] shadow-black shadow border-[0.2px] border-[#ccc] rounded-[6px] p-2 py-4"
+      className="bg-white w-[48%] h-[280px] shadow-black shadow border-[0.2px] border-[#ccc] rounded-[6px] p-2 py-4"
     >
-      <View className="flex-row justify-end">
+      <View className="flex-row absolute top-8 z-10 right-5 justify-end">
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
@@ -129,12 +163,14 @@ const ProductCard = ({ ...item }: Product) => {
         </Pressable>
       </View>
 
-      <Image
-        source={{ uri: image_url }}
-        width={164}
-        height={161}
-        className="rounded-[12px] w-full"
-      />
+      <View className="bg-[#999999] rounded-[12px]">
+        <Image
+          source={{ uri: image_url }}
+          width={164}
+          height={161}
+          className="rounded-[12px] w-full"
+        />
+      </View>
 
       <View className="flex-row items-center justify-between ">
         <View className="w-[107px] pt-4">
@@ -143,7 +179,7 @@ const ProductCard = ({ ...item }: Product) => {
             £{price.toLocaleString()}
           </Text>
 
-          <View className="flex-row justify-between items-center pt-4">
+          <View className="flex-row gap-10 pt-3">
             <View className="flex-row gap-1">
               {rating === 0 ? (
                 <NoStar />
@@ -154,7 +190,7 @@ const ProductCard = ({ ...item }: Product) => {
               )}
             </View>
             <Text className="text-[#A4A9B3] font-inter-light text-[9px]">
-              56890
+              {rating}
             </Text>
           </View>
         </View>

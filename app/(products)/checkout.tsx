@@ -2,24 +2,100 @@ import Arrow from "@/assets/images/iconsvg/arrowright.svg";
 import Back from "@/assets/images/iconsvg/back.svg";
 import Delivery from "@/assets/images/iconsvg/delivery.svg";
 import { Button } from "@/components/Shared/Button";
-
 import MainHeader from "@/components/Shared/MainHeader";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductCtx } from "@/lib/productsCtx";
 import { useGetCartQuery } from "@/services/cart";
 import { router } from "expo-router";
-import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import uuid from "react-native-uuid";
+
+import { useGetProfileQuery } from "@/services/auth";
+// import {
+//   AdditionalPaymentMethodType,
+//   authorize,
+//   CurrencyCode,
+//   Failure,
+//   getAuthorizationState,
+//   getAuthorizedLocation,
+//   mapUserInfoToFailure,
+//   ProcessingMode,
+//   PromptMode,
+//   startPayment,
+//   type PaymentParameters,
+//   type PromptParameters,
+// } from "mobile-payments-sdk-react-native";
 
 const checkout = () => {
   const { setCartState, cartState } = useProductCtx();
 
+  const { data, isLoading: loadingProfile } = useGetProfileQuery();
   const { data: cart, isLoading: loadingCart } = useGetCartQuery();
-
   const { orderData, finalCartData } = cartState!;
   const { calculations } = useLocalCart(cart?.data.items);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  // const handleStartPayment = async () => {
+  //   const paymentParameters: PaymentParameters = {
+  //     amountMoney: { amount: 1, currencyCode: CurrencyCode.EUR },
+  //     appFeeMoney: { amount: 0, currencyCode: CurrencyCode.EUR },
+  //     idempotencyKey: uuid.v4(),
+  //     note: "Payment for services",
+  //     processingMode: ProcessingMode.AUTO_DETECT,
+  //     orderId: JSON.stringify(orderData!.order_id),
+  //     customerId: data?.data.email,
+  //     referenceId: "",
+  //   };
+
+  //   const promptParameters: PromptParameters = {
+  //     additionalMethods: [AdditionalPaymentMethodType.ALL],
+  //     mode: PromptMode.DEFAULT,
+  //   };
+
+  //   try {
+  //     const payment = await startPayment(paymentParameters, promptParameters);
+  //     console.log("Payment successful:", payment);
+  //   } catch (error: any) {
+  //     // convert the error.userInfo into a Failure object
+  //     const failure: Failure = mapUserInfoToFailure(error.userInfo);
+  //     console.log("Payment error:", JSON.stringify(failure));
+  //   }
+  // };
+
+  // const handleAuthorize = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     // Add your own access token and location ID from developer.squareup.com
+  //     let auth = await authorize(
+  //       "EAAAl87FCIEp02eMxZNXU2WeH1LnGyFnFf8R4Ps54-1lKrJN0sOTE1SZDkTFmrxR",
+  //       "LQ9TND1H83BK3"
+  //     );
+  //     console.log(auth);
+  //     let authorizedLocation = await getAuthorizedLocation();
+  //     let authorizationState = await getAuthorizationState();
+  //     setIsAuthorized(true);
+  //     console.log(
+  //       "SDK Authorized with location " + JSON.stringify(authorizedLocation)
+  //     );
+  //     console.log(
+  //       "SDK Authorization Status is " + JSON.stringify(authorizationState)
+  //     );
+  //   } catch (error: any) {
+  //     setIsAuthorized(false);
+  //     console.log("Authorization error: ", JSON.stringify(error));
+  //     Alert.alert("Error Authenticating", error.message);
+  //   }
+  //   setIsLoading(false);
+  // };
+
+  // useEffect(() => {
+  //   handleAuthorize()
+  // }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -43,7 +119,7 @@ const checkout = () => {
                 </Text>
               </View>
             </View>
-            <Arrow width={20} height={20} className="" />
+            {/* <Arrow width={20} height={20} className="" /> */}
           </View>
           {/* <View className="flex-row items-center justify-between mt-6 border-t-[0.5px] border-[#D9D9D9] pt-4">
             <View className="flex-row items-center gap-3">
@@ -108,7 +184,7 @@ const checkout = () => {
         <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t py-4">
           <Button
             onPress={() => {
-              router.push("/(products)/deliveryAddress");
+              router.push("/(order)/ongoingOrder");
             }}
             children="Submit order"
             className="bg-black rounded-[8px] px-4 py-4  w-full"

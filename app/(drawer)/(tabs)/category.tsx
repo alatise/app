@@ -50,32 +50,6 @@ export default function CategoryScreen() {
     ...(categories ?? []),
   ];
 
-  // const loadMore = useCallback(() => {
-  //   if (!loadingProducts && !isFetching && hasMore && categoryProducts) {
-  //     setCurrentPage(currentPage + 1);
-  //   }
-  // }, [
-  //   loadingProducts,
-  //   isFetching,
-  //   hasMore,
-  //   categoryProducts,
-  //   currentPage,
-  //   setCurrentPage,
-  // ]);
-
-  // const onEndReached = useCallback(() => {
-  //   loadMore();
-  // }, [loadMore]);
-
-  // const renderFooter = () => {
-  //   if (!isFetching) return null;
-  //   return (
-  //     <View className="py-4 items-center">
-  //       <ActivityIndicator size="small" color="#000" />
-  //     </View>
-  //   );
-  // };
-
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const lastLoadedPageRef = useRef(1);
   const highestViewedPageRef = useRef(1); // Track the highest page actually viewed
@@ -137,6 +111,7 @@ export default function CategoryScreen() {
 
     console.log("Loading more - Current page:", currentPage);
     setIsLoadingMore(true);
+    //@ts-expect-error
     setCurrentPage((prev: any) => prev + 1);
   }, [
     isLoadingMore,
@@ -222,9 +197,14 @@ export default function CategoryScreen() {
 
       {/* <TopCategories /> */}
 
-      <Text className="font-inter-semibold text-lg pt-8">Explore Products</Text>
+      <Text className="font-inter-semibold text-lg pt-8">Explore Categories</Text>
       {loadingCategories ? (
-        <ActivityIndicator size={"small"} color="#FDEBD5" />
+        <View className="flex items-center justify-center mt-10">
+          <ActivityIndicator size="small" color="#B29954" />
+          <Text className="mt-2 text-black text-sm  font-inter-medium">
+            Loading categories...
+          </Text>
+        </View>
       ) : (
         <FlatList
           showsHorizontalScrollIndicator={false}
@@ -263,6 +243,7 @@ export default function CategoryScreen() {
               justifyContent: "space-between",
               marginBottom: 10,
             }}
+            //@ts-expect-error
             onViewableItemsChanged={onViewableItemsChanged}
             viewabilityConfig={viewabilityConfig}
             ListFooterComponent={renderFooter}
@@ -279,12 +260,12 @@ export default function CategoryScreen() {
           >
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-2 text-base font-inter-medium">
-              Loading products...
+              Loading products ---...
             </Text>
           </View>
         )}
 
-        {/* 🔹 Overlay while fetching next page (not initial) */}
+        {/* 🔹 Overlay while fetching next page (not initial)
         {isFetching && products!?.products.length > 0 && (
           <View className="absolute bottom-6 left-0 right-0 flex items-center">
             <View className="px-4 py-2 bg-black/70 rounded-full flex-row items-center">
@@ -294,7 +275,7 @@ export default function CategoryScreen() {
               </Text>
             </View>
           </View>
-        )}
+        )} */}
       </View>
     </TabWrapper>
   );

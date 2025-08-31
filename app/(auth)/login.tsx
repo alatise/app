@@ -79,7 +79,7 @@ const Login = () => {
             />
           </View>
 
-          <View
+          {/* <View
             className={`absolute z-[15] left-padding ${Platform.OS === "ios" ? "top-[50px]" : "top-[30px]"}`}
           >
             <TouchableOpacity
@@ -88,7 +88,7 @@ const Login = () => {
             >
               <Ionicons size={24} color="#000" name="chevron-back" />
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
 
         <View className="absolute -top-[45px] right-0 w-4/5 h-[350px] z-10 rounded-bl-[25px] overflow-hidden">

@@ -1,13 +1,17 @@
 import Arrow from "@/assets/images/iconsvg/arrowright.svg";
+import Avatar from "@/assets/images/iconsvg/avatar.svg";
+
 import { IMAGES } from "@/constants/Images";
 import { useSession } from "@/lib/authCtx";
+import { useGetProfileQuery } from "@/services/auth";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-import { Image, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 
 export default function CustomDrawerContent(props: any) {
   const { session, isSessionLoading, setSession } = useSession();
+  const { data, isLoading } = useGetProfileQuery();
 
   const drawerItems = [
     {
@@ -20,16 +24,12 @@ export default function CustomDrawerContent(props: any) {
       name: "Products",
       navigate: "products",
     },
-    {
-      icon: IMAGES.components,
-      name: "Components",
-      navigate: "Components",
-    },
-    {
-      icon: IMAGES.star,
-      name: "Featured",
-      navigate: "Writereview",
-    },
+
+    // {
+    //   icon: IMAGES.star,
+    //   name: "Featured",
+    //   navigate: "Writereview",
+    // },
     {
       icon: IMAGES.heart,
       name: "Wishlist",
@@ -45,11 +45,7 @@ export default function CustomDrawerContent(props: any) {
       name: "My Cart",
       navigate: "myCart",
     },
-    {
-      icon: IMAGES.chat,
-      name: "Chat List",
-      navigate: "Chat",
-    },
+
     {
       icon: IMAGES.user3,
       name: "Profile",
@@ -67,20 +63,21 @@ export default function CustomDrawerContent(props: any) {
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
       {/* Profile Header */}
-      <View className="flex-row  items-center gap-3  px-2 ">
-        <Image
-          source={{ uri: "https://i.pravatar.cc/100" }}
-          className="w-16 h-16 rounded-full"
-        />
-        <View>
-          <Text className="text-black text-lg font-inter-semibold">
-            John Doe
-          </Text>
-          <Text className="text-black text-[15px] font-inter-regular">
-            john@example.com
-          </Text>
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <View className="flex-row  items-center gap-3  px-2 ">
+          <Avatar width={30} height={30} className="rounded-full" />
+          <View>
+            <Text className="text-black text-[14px] font-inter-semibold">
+              {data?.data.name}
+            </Text>
+            <Text className="text-black text-[12px] font-inter-regular">
+              {data?.data.email}
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
 
       {/* Drawer Items */}
       <View className="flex-1  pt-4">
@@ -90,13 +87,10 @@ export default function CustomDrawerContent(props: any) {
           <Pressable
             key={idx}
             onPress={() => {
-              console.log(">>>>hello");
-
               // navigation.dispatch(DrawerActions.closeDrawer());
 
               if (item.navigate === "logout") {
                 console.log(">>>>>clicked on logout");
-
                 router.replace("/(auth)/login");
                 setSession(null!);
               }
@@ -110,10 +104,10 @@ export default function CustomDrawerContent(props: any) {
               if (item.navigate === "orders") {
                 router.push("/(order)/ongoingOrder");
               }
-              if (item.navigate === "myCart ") {
+              if (item.navigate === "myCart") {
                 router.push("/(drawer)/(tabs)/myCart");
               }
-              if (item.navigate === "profile ") {
+              if (item.navigate === "profile") {
                 router.push("/(drawer)/(tabs)/profile");
               }
 

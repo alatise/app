@@ -149,7 +149,7 @@ export interface Product {
 }
 
 export interface ProductParam {
-  id: number;
+  id?: number;
   page: number;
   per_page: number;
 }

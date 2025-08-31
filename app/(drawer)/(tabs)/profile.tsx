@@ -4,7 +4,7 @@ import Message from "@/assets/images/iconsvg/msg.svg";
 import Profile from "@/assets/images/iconsvg/profile.svg";
 import Search from "@/assets/images/iconsvg/search.svg";
 import Star from "@/assets/images/iconsvg/star1.svg";
-
+import Avatar from "@/assets/images/iconsvg/avatar.svg";
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
 import { useGetProfileQuery } from "@/services/auth";
@@ -13,6 +13,7 @@ import React from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -42,7 +43,20 @@ const SettingsCard = ({ left, title, onPress }: SettingsCardProps) => {
 export default function ProfileScreen() {
   const { data, isLoading } = useGetProfileQuery();
 
-  const stuff = ["Your Orders", "WishList", "Coupons", "Track Order"];
+  const stuff = [
+    {
+      name: "Your Orders",
+      path: "/(order)/ongoingOrder",
+    },
+    {
+      name: "WishList",
+      path: "/(drawer)/(tabs)/wishlist",
+    },
+    {
+      name: "Track Order",
+      path: "/(order)/trackOrder",
+    },
+  ];
   return (
     <TabWrapper>
       <MainHeader
@@ -58,11 +72,11 @@ export default function ProfileScreen() {
       />
 
       <View className={"flex-row items-center gap-3 py-6"}>
-        <View className={"bg-[#999999] h-[40px] w-[41px] rounded-full"}></View>
+        <Avatar width={40} height={40} className="rounded-full" />
         <Text className="text-xl font-inter-regular ">
           Hello,{" "}
           {isLoading ? (
-            <ActivityIndicator  />
+            <ActivityIndicator />
           ) : (
             <Text className="font-inter-semibold">{data?.data.name}</Text>
           )}
@@ -72,12 +86,15 @@ export default function ProfileScreen() {
       <FlatList
         data={stuff}
         numColumns={2}
-        renderItem={({ item }) => (
-          <View className="flex-row items-center  justify-center bg-[#F6F6F6] w-[48%] px-4 py-3 rounded-[8px] mb-4">
+        renderItem={({ item }: any) => (
+          <Pressable
+            onPress={() => router.push(item.path)}
+            className="flex-row items-center  justify-center bg-[#F6F6F6] w-[48%] px-4 py-3 rounded-[8px] mb-4"
+          >
             <Text className="text-base font-inter-regular text-center">
-              {item}
+              {item.name}
             </Text>
-          </View>
+          </Pressable>
         )}
         columnWrapperStyle={{
           justifyContent: "space-between",
@@ -103,16 +120,16 @@ export default function ProfileScreen() {
             left={<Profile />}
             title="Saved Addresses"
           />
-          <SettingsCard
+          {/* <SettingsCard
             onPress={() => router.push("/notifications")}
             left={<Profile />}
             title="Notifications Settings"
           />
-          <SettingsCard left={<Profile />} title="Notifications Settings" />
+          <SettingsCard left={<Profile />} title="Notifications Settings" /> */}
         </View>
       </View>
 
-      <View className="mt-6">
+      {/* <View className="mt-6">
         <Text className="font-inter-semibold text-lg ">My Activity</Text>
         <View className="mt-4">
           <SettingsCard left={<Star />} title="Reviews" />
@@ -121,7 +138,7 @@ export default function ProfileScreen() {
             title="Questions & Answers"
           />
         </View>
-      </View>
+      </View> */}
     </TabWrapper>
   );
 }

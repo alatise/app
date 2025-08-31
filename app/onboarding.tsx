@@ -6,6 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useRef, useState } from "react";
+import * as SecureStore from "expo-secure-store";
 import {
   ActivityIndicator,
   Dimensions,
@@ -49,6 +50,7 @@ const OnBoarding = () => {
 
   const handleGetStarted = () => {
     console.log("Get Started pressed");
+    SecureStore.setItem("isGuest", "hasVisitedBefore");
     try {
       router.push("/(auth)/login");
     } catch (error) {
@@ -67,19 +69,19 @@ const OnBoarding = () => {
       >
         <View className="flex-1 relative items-center justify-center">
           <Image
-            className="w-full h-[85%]"
+            className="w-[92%] h-[463px]"
             style={{ borderRadius: 21 }}
             source={IMAGES.Onboarding1}
-            resizeMode="contain"
+            // resizeMode="contain"
           />
         </View>
 
-        <View className="absolute left-[30px]" style={{ bottom: 380 }}>
+        <View className="absolute left-[30px]" style={{ bottom: 390 }}>
           <View
             className="bg-primary items-center justify-center border-2"
             style={{
               borderRadius: 100,
-              width: 110,
+              width: 115,
               height: 110,
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
@@ -107,7 +109,9 @@ const OnBoarding = () => {
             onScroll={onScroll}
           >
             {isLoading ? (
-              <ActivityIndicator color="white" size={"large"} />
+              <View className="flex-1 justify-center items-center">
+                <ActivityIndicator color="white" size={"large"} />
+              </View>
             ) : (
               <>
                 {data?.data?.slides.map((data) => (
@@ -121,9 +125,9 @@ const OnBoarding = () => {
                   >
                     <View className="items-start flex-1 justify-start">
                       <Text
-                        className="font-inter-light text-white"
+                        className="font-inter-light text-[53px] text-white"
                         style={{
-                          fontSize: 52,
+                          fontSize: 53,
                           lineHeight: 60,
                           marginBottom: -5,
                         }}
@@ -131,17 +135,7 @@ const OnBoarding = () => {
                         {data.title}
                       </Text>
                       <Text
-                        className="font-inter-bold text-white"
-                        style={{
-                          fontSize: 58,
-                          lineHeight: 60,
-                          marginBottom: 5,
-                        }}
-                      >
-                        {data.title}
-                      </Text>
-                      <Text
-                        className="font-inter-regular"
+                        className="font-inter-regular pt-2"
                         style={{
                           fontSize: 18,
                           color: "rgba(255, 255, 255, 0.8)",

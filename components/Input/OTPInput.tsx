@@ -2,6 +2,7 @@
 import React, { useRef, useState } from "react";
 import {
   Keyboard,
+  Platform,
   Pressable,
   Text,
   TextInput,
@@ -55,28 +56,54 @@ export default function OTPInput({ setOtpStr, length }: prop) {
   const secureTextEntry = true;
 
   return (
+    // <TouchableWithoutFeedback  accessible={false}>
+    //   <View className="justify-center items-center px-6 pt-10">
+    //     <Pressable onPress={handlePress} className="flex-row space-x-2">
+    //       {renderPinBoxes()}
+    //     </Pressable>
+
+    //     {/* Hidden input for capturing keystrokes */}
+    //     <TextInput
+    //       ref={inputRef}
+    //       value={otp}
+    //       onChangeText={handleChange}
+    //       keyboardType="number-pad"
+    //       maxLength={length}
+    //       autoFocus
+    //       style={{
+    //         position: "absolute",
+    //         opacity: 0, // Tiny opacity to avoid being skipped
+    //         height: 1, // Non-zero height
+    //         width: 1, // Non-zero width
+    //       }}
+    //       caretHidden={true}
+    //     />
+    //   </View>
+    // </TouchableWithoutFeedback>
+
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View className="justify-center items-center px-6 pt-10">
-        <Pressable onPress={handlePress} className="flex-row space-x-2">
+        {/* Pin boxes that trigger focus when pressed */}
+        <Pressable onPress={handlePress} className="flex-row">
           {renderPinBoxes()}
         </Pressable>
 
-        {/* Hidden input for capturing keystrokes */}
+        {/* Hidden input to capture keyboard input */}
         <TextInput
           ref={inputRef}
           value={otp}
           onChangeText={handleChange}
           keyboardType="number-pad"
           maxLength={length}
-          autoFocus
           style={{
             position: "absolute",
-            opacity: 0.01, // Tiny opacity to avoid being skipped
-            height: 1, // Non-zero height
-            width: 1, // Non-zero width
-            zIndex: -1, // Keep it behind everything
+            opacity: 0,
+            // ✅ must have some size on iOS or keyboard won’t open
+            height: Platform.OS === "ios" ? 40 : 0,
+            width: Platform.OS === "ios" ? 40 : 0,
           }}
           caretHidden={true}
+          autoFocus={false} // change to true if you want it to focus immediately
         />
       </View>
     </TouchableWithoutFeedback>

@@ -73,15 +73,14 @@ const productDetails = () => {
             left={<Back onPress={() => router.back()} width={35} height={35} />}
             header={"Product Details"}
             right={
-              <Pressable className="relative">
+              <Pressable
+                onPress={() => router.push("/myCart")}
+                className="relative"
+              >
                 {loadingCart ? (
                   <ActivityIndicator size={"small"} />
                 ) : (
-                  <Cart
-                    onPress={() => router.push("/myCart")}
-                    width={35}
-                    height={35}
-                  />
+                  <Cart width={35} height={35} />
                 )}
                 <View className="bg-red-500 absolute flex-row justify-center items-center w-[16px] h-[16px] top-0 right-0 rounded-full">
                   <Text className="text-white font-inter-regular text-[11px]">
@@ -91,7 +90,7 @@ const productDetails = () => {
               </Pressable>
             }
           />
-          <View className="pt-5">
+          <View className=" bg-[#999999] rounded-[12px] mt-3">
             {/* <Product width={352} className="mt-10" /> */}
             <Image
               source={{ uri: image_url }}

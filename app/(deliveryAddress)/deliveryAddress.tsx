@@ -12,7 +12,13 @@ import MainHeader from "@/components/Shared/MainHeader";
 import { useGetDeliveryAddressQuery } from "@/services/deliveryAddress";
 import { router } from "expo-router";
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type DeliveryCardProps = {
@@ -40,8 +46,7 @@ const DeliveryCard = ({ address, title, type }: DeliveryCardProps) => {
 
 const deliveryAddress = () => {
   const { data: deliveryAddresses, isLoading } = useGetDeliveryAddressQuery();
-  console.log(">>>>>deliveryAddresses", deliveryAddresses);
-  
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View className="flex-1 bg-white  px-4 pt-6">
@@ -52,15 +57,23 @@ const deliveryAddress = () => {
             right={<View />}
           />
 
-
-          {deliveryAddresses?.data.addresses.map((a) => (
-            <DeliveryCard
-              key={a.id}
-              type={a.type}
-              title={`${a.type} Address`}
-              address={a.address_1}
-            />
-          ))}
+          {isLoading ? (
+            <View className=" justify-center items-center pt-20">
+              <ActivityIndicator color={"black"} />
+              <Text>Loading Addresses....</Text>
+            </View>
+          ) : (
+            <>
+              {deliveryAddresses?.data.addresses.map((a) => (
+                <DeliveryCard
+                  key={a.id}
+                  type={a.type}
+                  title={`${a.type} Address`}
+                  address={a.address_1}
+                />
+              ))}
+            </>
+          )}
 
           <TouchableOpacity
             onPress={() => router.push("/(deliveryAddress)/addDeliveryAddress")}

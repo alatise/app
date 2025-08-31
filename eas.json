@@ -1,0 +1,24 @@
+{
+  "cli": {
+    "version": ">= 16.0.10",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "ios": {
+        "simulator": true
+      },
+      "distribution": "internal"
+    },
+    "internal": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

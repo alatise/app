@@ -83,16 +83,11 @@ export const productsApi = api.injectEndpoints({
       }),
       invalidatesTags: [],
     }),
-    getProducts: builder.mutation<
-      ForgotPasswordResponse,
-      OtpConfirmationRequest
-    >({
-      query: (data) => ({
-        url: `/auth/otp-confirm`,
-        method: "POST",
-        data,
+    getProducts: builder.query<CategoryProducts, ProductParam>({
+      query: ({page, per_page}) => ({
+        url: `/products?page=${page}&per_page=${per_page}`,
+        method: "GET",
       }),
-      invalidatesTags: [],
     }),
     getProductsById: builder.query<{ data: Product }, { id: string }>({
       query: ({ id }) => ({
@@ -129,4 +124,5 @@ export const {
   useHomeDataQuery,
   useGetProductsByCategoryIdQuery,
   useGetCategoriesQuery,
+  useGetProductsQuery
 } = productsApi;
