@@ -1,10 +1,8 @@
 import ArrowRight from "@/assets/images/iconsvg/arrowright.svg";
+import Avatar from "@/assets/images/iconsvg/avatar.svg";
 import Back from "@/assets/images/iconsvg/back.svg";
-import Message from "@/assets/images/iconsvg/msg.svg";
 import Profile from "@/assets/images/iconsvg/profile.svg";
 import Search from "@/assets/images/iconsvg/search.svg";
-import Star from "@/assets/images/iconsvg/star1.svg";
-import Avatar from "@/assets/images/iconsvg/avatar.svg";
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
 import { useGetProfileQuery } from "@/services/auth";
@@ -51,10 +49,6 @@ export default function ProfileScreen() {
     {
       name: "WishList",
       path: "/(drawer)/(tabs)/wishlist",
-    },
-    {
-      name: "Track Order",
-      path: "/(order)/trackOrder",
     },
   ];
   return (
@@ -110,35 +104,14 @@ export default function ProfileScreen() {
             left={<Profile />}
             title="Edit Profile"
           />
-          <SettingsCard
-            onPress={() => router.push("/(payment)/payment")}
-            left={<Profile />}
-            title="Saved Cards & Wallet"
-          />
+
           <SettingsCard
             onPress={() => router.push("/(deliveryAddress)/deliveryAddress")}
             left={<Profile />}
             title="Saved Addresses"
           />
-          {/* <SettingsCard
-            onPress={() => router.push("/notifications")}
-            left={<Profile />}
-            title="Notifications Settings"
-          />
-          <SettingsCard left={<Profile />} title="Notifications Settings" /> */}
         </View>
       </View>
-
-      {/* <View className="mt-6">
-        <Text className="font-inter-semibold text-lg ">My Activity</Text>
-        <View className="mt-4">
-          <SettingsCard left={<Star />} title="Reviews" />
-          <SettingsCard
-            left={<Message width={20} />}
-            title="Questions & Answers"
-          />
-        </View>
-      </View> */}
     </TabWrapper>
   );
 }

@@ -68,7 +68,7 @@ export const GridProductCard = ({
 
   return (
     <View
-      className={`bg-white flex-row px-3  py-3 mt-10 justify-between ${order ? "items-center" : "items-end"}   shadow-black shadow border-[0.2px] border-[#ccc] rounded-[12px]`}
+      className={`bg-white flex-row px-3  py-3 mt-10 justify-between ${order ? "items-center" : "items-end"}   shadow-black shadow-[0.5px] border-[0.2px] border-[#ccc] rounded-[12px]`}
     >
       {/* <Product1 width={105} height={103} /> */}
 
@@ -145,7 +145,7 @@ const ProductCard = ({ ...item }: Product) => {
         setProduct(item);
         router.push("/(products)/productDetails");
       }}
-      className="bg-white w-[48%] h-[280px] shadow-black shadow border-[0.2px] border-[#ccc] rounded-[6px] p-2 py-4"
+      className="bg-white w-[48%] h-[280px]  shadow-slate-50 shadow border-[0.2px] border-[#ccc] rounded-[6px] p-2 py-4"
     >
       <View className="flex-row absolute top-8 z-10 right-5 justify-end">
         <Pressable
@@ -176,7 +176,7 @@ const ProductCard = ({ ...item }: Product) => {
         <View className="w-[107px] pt-4">
           <Text className="text-[11px] font-inter-regular">{name}</Text>
           <Text className="text-[13px] font-inter-semibold pt-2">
-            £{price.toLocaleString()}
+            £{price.toLocaleString("en-GB")}
           </Text>
 
           <View className="flex-row gap-10 pt-3">

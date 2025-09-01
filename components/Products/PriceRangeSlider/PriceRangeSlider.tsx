@@ -39,8 +39,8 @@ const PriceRangeSlider = ({ minPrice, maxPrice, setMaxPrice, setMinPrice }: prop
       </View>
 
       <RangeSlider
-        min={500}
-        max={100000}
+        min={100}
+        max={20000}
         step={10}
         low={minPrice}
         high={maxPrice}

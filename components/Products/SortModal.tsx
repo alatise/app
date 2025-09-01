@@ -2,37 +2,8 @@ import Close from "@/assets/images/iconsvg/close1.svg";
 import { useProductCtx } from "@/lib/productsCtx";
 import { useGetCategoriesQuery } from "@/services/products";
 import React, { useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { Button } from "../Shared/Button";
-import { CategoryItem } from "../Shared/CategoryItem";
-import PriceRangeSlider from "./PriceRangeSlider/PriceRangeSlider";
-
-// const products = [
-//   {
-//     img: IMAGES.nike,
-//     name: "Nike",
-//   },
-//   {
-//     img: IMAGES.adidas,
-//     name: "Adidas",
-//   },
-//   {
-//     img: IMAGES.reebook,
-//     name: "Reebok",
-//   },
-//   {
-//     img: IMAGES.puma,
-//     name: "Puma ",
-//   },
-//   {
-//     img: IMAGES.adidas,
-//     name: "Adidas",
-//   },
-//   {
-//     img: IMAGES.adidas,
-//     name: "Adidas",
-//   },
-// ];
 
 type Filters = {
   order: string;
@@ -43,7 +14,7 @@ type Filters = {
 };
 
 type prop = {
-  openFilterModal: (open: boolean) => void;
+  openSortModal: (open: boolean) => void;
   filters: Filters;
   setFilters: React.Dispatch<
     React.SetStateAction<{
@@ -56,12 +27,16 @@ type prop = {
   >;
 };
 
-const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
-  const [minPrice, setMinPrice] = useState(100);
-  const [maxPrice, setMaxPrice] = useState(50000);
+const SortModal = ({ filters, setFilters, openSortModal }: prop) => {
   const { data, isLoading: loadingCategories } = useGetCategoriesQuery();
+  const [sort, setSort] = useState({
+    order: "",
+    orderBy: "",
+  });
 
   const categories = data?.data?.categories.map((c) => c);
+
+  console.log(">>>>folter", filters, sort);
 
   const sortedCategories = [
     {
@@ -84,11 +59,33 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
     setHasMore,
   } = useProductCtx();
 
+  const orderBys = [
+    {
+      name: "Ascending",
+      path: "ASC",
+    },
+    {
+      name: "Descending",
+      path: "DESC",
+    },
+  ];
+
+  const order = [
+    {
+      name: "Rating",
+      path: "rating",
+    },
+    {
+      name: "Price",
+      path: "price",
+    },
+  ];
+
   return (
     <View>
       <View className="flex-row justify-between items-center border-b-[0.2px] border-[#ccc] pb-4 px-6 mb-4">
-        <Text className=" font-montserrat-Medium text-xl">Filters</Text>
-        <Close onPress={() => openFilterModal(false)} />
+        <Text className=" font-montserrat-Medium text-xl">Sort</Text>
+        <Close onPress={() => openSortModal(false)} />
       </View>
 
       <View className="px-6 py-3">
@@ -109,68 +106,91 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
         </ScrollView> */}
 
         <View className="flex-row justify-between items-center  mb-4 mt-2">
-          <Text className=" font-montserrat-Medium text-[17px]">
-            Categories:
-          </Text>
+          <Text className=" font-montserrat-Medium text-[17px]">Order:</Text>
         </View>
 
-        <View className="flex-row flex-wrap">
-          <FlatList
-            showsHorizontalScrollIndicator={false}
-            horizontal
-            data={sortedCategories}
-            renderItem={({ item }) => (
-              <CategoryItem
-                setSelectCategory={setSelectCategory!}
-                selectCategory={selectCategory!}
-                item={item}
-              />
-            )}
-            style={{ marginTop: 6, flexWrap: "wrap" }}
-            keyExtractor={(item) => `${item.id}`}
-          />
-        </View>
-
-        {/* <View className="flex-row justify-between items-center  mb-4 mt-4">
-          <Text className=" font-montserrat-Medium text-[17px]">Size:</Text>
-          <Text className=" font-montserrat-Regular text-black text-[13px]">
-            See All
-          </Text>
-        </View>
-
-        <View className="flex-row flex-wrap">
-          {nums.map((c, i) => (
-            <View
-              key={i}
-              className={`rounded-[8px] h-[38px] items-center flex-row px-6 mr-2 mb-2 ${
-                i === 0 ? "bg-black" : "bg-[#F2F2F2]"
+        <FlatList
+          data={order}
+          numColumns={2}
+          renderItem={({ item }: any) => (
+            <Pressable
+              onPress={() =>
+                setSort({
+                  ...sort,
+                  order: item.path,
+                })
+              }
+              className={`flex-row items-center  justify-center bg-[#F6F6F6] w-[48%] px-4 py-3 rounded-[8px] mb-4 ${
+                sort.order === item.path
+                  ? "bg-black"
+                  : "rounded-[8px] bg-[#F2F2F2]"
               }`}
             >
               <Text
-                className={`text-[13px] font-inter-semibold ${
-                  i === 0 ? "text-white" : "text-[#222]"
+                className={`text-base font-inter-regular text-center ${
+                  sort.order === item.path ? "text-white" : "text-[#222]"
                 }`}
               >
-                {c}
+                {item.name}
               </Text>
-            </View>
-          ))}
-        </View> */}
+            </Pressable>
+          )}
+          columnWrapperStyle={{
+            justifyContent: "space-between",
+            marginBottom: 0,
+          }}
+        />
 
-        <View className="pt-6">
+        <View className="flex-row justify-between items-center  mb-4 mt-4">
+          <Text className=" font-montserrat-Medium text-[17px]">Order By:</Text>
+        </View>
+
+        <FlatList
+          data={orderBys}
+          numColumns={2}
+          renderItem={({ item }: any) => (
+            <Pressable
+              onPress={() =>
+                setSort({
+                  ...sort,
+                  orderBy: item.path,
+                })
+              }
+              className={`flex-row items-center  justify-center bg-[#F6F6F6] w-[48%] px-4 py-3 rounded-[8px] mb-4 ${
+                sort.orderBy === item.path
+                  ? "bg-black"
+                  : "rounded-[8px] bg-[#F2F2F2]"
+              }`}
+            >
+              <Text
+                className={`text-base font-inter-regular text-center ${
+                  sort.orderBy === item.path ? "text-white" : "text-[#222]"
+                }`}
+              >
+                {item.name}
+              </Text>
+            </Pressable>
+          )}
+          columnWrapperStyle={{
+            justifyContent: "space-between",
+            marginBottom: 0,
+          }}
+        />
+
+        {/* <View className="pt-6">
           <PriceRangeSlider
             minPrice={minPrice}
             maxPrice={maxPrice}
             setMaxPrice={setMaxPrice}
             setMinPrice={setMinPrice}
           />
-        </View>
+        </View> */}
 
-        <View className="flex-row gap-4 w-full">
+        <View className="flex-row gap-4 mt-10 w-full">
           <Button
             children="Reset"
             onPress={() => {
-              openFilterModal(false);
+              openSortModal(false);
               setFilters({
                 ...filters,
                 min_price: 0,
@@ -185,12 +205,11 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
           />
           <Button
             onPress={() => {
-              openFilterModal(false);
+              openSortModal(false);
               setFilters({
                 ...filters,
-                min_price: minPrice,
-                max_price: maxPrice,
-                category: selectCategory?.slug!,
+                orderBy: sort.orderBy,
+                order: sort.order,
               });
             }}
             children="Apply"
@@ -203,4 +222,4 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
   );
 };
 
-export default FilterModal;
+export default SortModal;

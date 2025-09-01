@@ -1,13 +1,12 @@
 import {
   CategoryProducts,
   CategoryResponse,
-  ForgotPasswordRequest,
   ForgotPasswordResponse,
   HomeResponse,
-  OtpConfirmationRequest,
   Product,
   ProductParam,
   ResetPasswordRequest,
+  SearchProductsResponse,
 } from "@/lib/type";
 import { api } from "./base";
 
@@ -72,20 +71,23 @@ export const productsApi = api.injectEndpoints({
 
       providesTags: (result, error, { id }) => [{ type: "Products", id }],
     }),
-    searchProducts: builder.mutation<
-      ForgotPasswordResponse,
-      ForgotPasswordRequest
-    >({
-      query: (data) => ({
-        url: `/auth/send-otp`,
-        method: "POST",
-        data,
+    searchProducts: builder.query<SearchProductsResponse, ProductParam>({
+      query: ({ page, search, per_page }) => ({
+        url: `/search?q=${search}&page=${page}&per_page=${per_page}`,
+        method: "GET",
       }),
-      invalidatesTags: [],
     }),
     getProducts: builder.query<CategoryProducts, ProductParam>({
-      query: ({page, per_page}) => ({
-        url: `/products?page=${page}&per_page=${per_page}`,
+      query: ({
+        page,
+        per_page,
+        min_price,
+        max_price,
+        order,
+        orderby,
+        category,
+      }) => ({
+        url: `/products?page=${page}&per_page=${per_page}${category ? `&category=${category}` : ""}${min_price! > 0 ? `&min_price=${min_price}` : ""}${max_price! > 0 ? `&max_price=${max_price}` : ""}${orderby ? `&orderby=${orderby}` : ""}${order ? `&order=${order}` : ""}`,
         method: "GET",
       }),
     }),
@@ -124,5 +126,6 @@ export const {
   useHomeDataQuery,
   useGetProductsByCategoryIdQuery,
   useGetCategoriesQuery,
-  useGetProductsQuery
+  useGetProductsQuery,
+  useSearchProductsQuery,
 } = productsApi;

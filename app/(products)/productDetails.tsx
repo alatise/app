@@ -106,7 +106,7 @@ const productDetails = () => {
 
           <Text className="font-montserrat-Semibold pt-3">Description:</Text>
 
-          <Text className="pt-3 text-[#797777] font-montserrat-Regular">
+          <Text className="pt-3 text-[#797777] font-montserrat-Regular text-sm tracking-wider">
             {description}
           </Text>
 

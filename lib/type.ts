@@ -148,10 +148,23 @@ export interface Product {
   variations: Variations;
 }
 
+export interface SearchProductsResponse {
+  data: {
+    searchTerm: string;
+    results: Product[];
+  };
+}
+
 export interface ProductParam {
   id?: number;
   page: number;
   per_page: number;
+  search?: string
+  order?: string
+  orderby?: string
+  min_price?: number
+  max_price?: number
+  category?: string
 }
 
 interface Variations {
@@ -324,7 +337,7 @@ export interface AddedCartItems {
   product_id: string | number;
   quantity: number;
   name: string;
-  price: number
+  price: number;
 }
 
 export interface CheckoutRequest {

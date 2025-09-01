@@ -1,4 +1,3 @@
-import Arrow from "@/assets/images/iconsvg/arrowright.svg";
 import Back from "@/assets/images/iconsvg/back.svg";
 import Delivery from "@/assets/images/iconsvg/delivery.svg";
 import { Button } from "@/components/Shared/Button";
@@ -7,13 +6,15 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductCtx } from "@/lib/productsCtx";
 import { useGetCartQuery } from "@/services/cart";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, Text, View } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, Text, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import uuid from "react-native-uuid";
 
 import { useGetProfileQuery } from "@/services/auth";
+import axios from "axios";
+import { ActivityIndicator } from "react-native";
 // import {
 //   AdditionalPaymentMethodType,
 //   authorize,
@@ -39,6 +40,68 @@ const checkout = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
+
+  const line_items = finalCartData.map((c) => {
+    return {
+      uid: uuid.v4(),
+      name: c.name,
+      quantity: c.quantity.toString(),
+      item_type: "ITEM",
+      base_price_money: {
+        amount: c.price,
+        currency: JSON.stringify(orderData!.currency),
+      },
+      variation_total_price_money: {
+        amount: c.price * c.quantity,
+        currency: JSON.stringify(orderData!.currency),
+      },
+      total_money: {
+        amount: c.price * c.quantity,
+        currency: JSON.stringify(orderData!.currency),
+      },
+    };
+  });
+
+  console.log(
+    ">>>>>process.env.EXPO_PUBLIC_CHECKOUT_URL",
+    process.env.EXPO_PUBLIC_CHECKOUT_URL
+  );
+
+  const checkoutPaymentLink = async () => {
+    setIsLoading(true);
+    try {
+      await axios
+        .post(
+          `https://connect.squareup.com/v2/online-checkout/payment-links`,
+          {
+            idempotency_key: uuid.v4(),
+            order: {
+              id: JSON.stringify(orderData!.order_id),
+              location_id: "LQ9TND1H83BK3",
+              customerId: data?.data.email,
+              reference_id: uuid.v4(),
+              line_items,
+              total_money: {
+                amount: calculations.subtotal,
+                currency: JSON.stringify(orderData!.currency),
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `Bearer EAAAl87FCIEp02eMxZNXU2WeH1LnGyFnFf8R4Ps54-1lKrJN0sOTE1SZDkTFmrxR`,
+            },
+          }
+        )
+        .then((res) => {
+          setIsLoading(false);
+          console.log(">>>>>res", res.data);
+        });
+    } catch (e) {
+      console.log(">>>e", e);
+      setIsLoading(false);
+    }
+  };
 
   // const handleStartPayment = async () => {
   //   const paymentParameters: PaymentParameters = {
@@ -184,9 +247,10 @@ const checkout = () => {
         <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t py-4">
           <Button
             onPress={() => {
-              router.push("/(order)/ongoingOrder");
+              checkoutPaymentLink();
+              // router.push("/(order)/ongoingOrder");
             }}
-            children="Submit order"
+            children={isLoading ? <ActivityIndicator /> : "Submit order"}
             className="bg-black rounded-[8px] px-4 py-4  w-full"
             textClassName="text-white font-montserrat-Medium text-base"
           />
