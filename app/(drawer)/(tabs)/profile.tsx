@@ -1,3 +1,4 @@
+import HomeIcon from "@/assets/images/icons/home-active.svg";
 import ArrowRight from "@/assets/images/iconsvg/arrowright.svg";
 import Avatar from "@/assets/images/iconsvg/avatar.svg";
 import Back from "@/assets/images/iconsvg/back.svg";
@@ -102,7 +103,7 @@ export default function ProfileScreen() {
 
           <SettingsCard
             onPress={() => router.push("/(deliveryAddress)/deliveryAddress")}
-            left={<Profile />}
+            left={<HomeIcon />}
             title="Saved Addresses"
           />
         </View>
