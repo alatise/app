@@ -3,6 +3,7 @@ import {
   CategoryResponse,
   ForgotPasswordResponse,
   HomeResponse,
+  OrderResponse,
   Product,
   ProductParam,
   ResetPasswordRequest,
@@ -97,6 +98,18 @@ export const productsApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    getOngoingOrders: builder.query<OrderResponse, void>({
+      query: () => ({
+        url: `/orders/ongoing`,
+        method: "GET",
+      }),
+    }),
+    getCompleteOrders: builder.query<OrderResponse, void>({
+      query: () => ({
+        url: `/orders/completed`,
+        method: "GET",
+      }),
+    }),
     filterProducts: builder.mutation<
       ForgotPasswordResponse,
       ResetPasswordRequest
@@ -128,4 +141,6 @@ export const {
   useGetCategoriesQuery,
   useGetProductsQuery,
   useSearchProductsQuery,
+  useGetOngoingOrdersQuery,
+  useGetCompleteOrdersQuery
 } = productsApi;

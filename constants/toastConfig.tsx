@@ -82,3 +82,81 @@ export const CustomAlert = ({ visible, message, title, type }: Props) => {
     </Modal>
   );
 };
+
+// export const CustomAlert = ({ visible, message, title, type }: Props) => {
+//   const { hideAlert } = useSession();
+//   const Icon = type === "error" ? XCircle : CheckCircle;
+
+//   return (
+//     <Modal
+//       transparent
+//       visible={visible}
+//       animationType="fade"
+//       statusBarTranslucent
+//       presentationStyle="overFullScreen" // This is key
+//     >
+//       <View
+//         style={{
+//           flex: 1,
+//           backgroundColor: "rgba(0,0,0,0.5)",
+//           justifyContent: "center",
+//           alignItems: "center",
+//           padding: 20,
+//         }}
+//       >
+//         <View
+//           style={{
+//             backgroundColor: "white",
+//             borderRadius: 10,
+//             padding: 24,
+//             width: "85%",
+//             alignItems: "center",
+//             elevation: 10, // Android shadow
+//             shadowColor: "#000", // iOS shadow
+//             shadowOffset: { width: 0, height: 2 },
+//             shadowOpacity: 0.25,
+//             shadowRadius: 10,
+//           }}
+//         >
+//           <Icon size={40} color={type === "error" ? "red" : "green"} />
+//           <Text
+//             style={{
+//               fontSize: 18,
+//               textAlign: "center",
+//               fontWeight: "bold",
+//               marginTop: 16,
+//               color: type === "error" ? "#DC2626" : "#16A34A",
+//             }}
+//           >
+//             {title}
+//           </Text>
+//           <Text
+//             style={{
+//               color: "#6B7280",
+//               marginTop: 8,
+//               textAlign: "center",
+//               fontSize: 14,
+//             }}
+//           >
+//             {message}
+//           </Text>
+
+//           <TouchableOpacity
+//             style={{
+//               backgroundColor: "#your-secondary-color", // Replace with your secondary color
+//               borderRadius: 8,
+//               paddingHorizontal: 24,
+//               marginTop: 24,
+//               height: 40,
+//               justifyContent: "center",
+//               alignItems: "center",
+//             }}
+//             onPress={hideAlert}
+//           >
+//             <Text style={{ color: "white", fontWeight: "500" }}>OK</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     </Modal>
+//   );
+// };

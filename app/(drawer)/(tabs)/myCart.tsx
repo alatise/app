@@ -5,6 +5,7 @@ import Add from "@/assets/images/iconsvg/plusaddress.svg";
 import { GridProductCard } from "@/components/Products/ProductCard";
 import { Button } from "@/components/Shared/Button";
 import MainHeader from "@/components/Shared/MainHeader";
+import TabWrapper from "@/components/Shared/TabWrapper";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useSession } from "@/lib/authCtx";
 import { useProductCtx } from "@/lib/productsCtx";
@@ -90,7 +91,7 @@ export default function CartScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 px-4 bg-white">
+    <TabWrapper>
       <ScrollView className="">
         <MainHeader
           left={<Back onPress={() => router.back()} width={35} height={35} />}
@@ -177,10 +178,10 @@ export default function CartScreen() {
           loading={isLoading || gettingAddress || loadingCart}
           children={`Proceed to Buy (${calculations.totalItems}  items)`}
           onPress={handleProceedToBuy}
-          className="bg-[#000] mt-6 py-4"
+          className="bg-[#000] my-6 py-4"
           textClassName="text-white text-base font-inter-regular "
         />
       )}
-    </SafeAreaView>
+    </TabWrapper>
   );
 }

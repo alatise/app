@@ -151,7 +151,7 @@ const ProductsView = () => {
   ];
 
   return (
-    <View className="mt-4">
+    <View className="mt-4 pb-[140px]">
       {isFetching && currentPage === 1 ? (
         <View className="flex items-center justify-center mt-20">
           <ActivityIndicator size="small" color="#B29954" />
@@ -185,7 +185,7 @@ const ProductsView = () => {
         <View className="absolute bottom-6 left-0 right-0 flex items-center">
           <View className="px-4 py-2 bg-black/70 rounded-full flex-row items-center">
             <ActivityIndicator size="small" color="#fff" />
-            <Text className="ml-2 text-white text-sm font-inter-medium">
+            <Text className="ml-2 text-black text-sm font-inter-medium">
               Loading more products...
             </Text>
           </View>

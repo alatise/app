@@ -157,12 +157,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
     >
       {children}
 
-      <CustomAlert
+      {/* <CustomAlert
         visible={alertVisible}
         title={requestResponse.title}
         message={requestResponse.message}
         type={requestResponse.type!}
-      />
+      /> */}
     </AuthContext>
   );
 }

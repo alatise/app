@@ -8,20 +8,13 @@ import { GlobalClasses } from "@/constants/Stylesheet";
 import { Button } from "@/components/Shared/Button";
 import { useSession } from "@/lib/authCtx";
 import { LoginRequest } from "@/lib/type";
-import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { useForm } from "react-hook-form";
-import {
-  Image,
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
 
 const Login = () => {

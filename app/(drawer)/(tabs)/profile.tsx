@@ -2,7 +2,6 @@ import ArrowRight from "@/assets/images/iconsvg/arrowright.svg";
 import Avatar from "@/assets/images/iconsvg/avatar.svg";
 import Back from "@/assets/images/iconsvg/back.svg";
 import Profile from "@/assets/images/iconsvg/profile.svg";
-import Search from "@/assets/images/iconsvg/search.svg";
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
 import { useGetProfileQuery } from "@/services/auth";
@@ -56,13 +55,7 @@ export default function ProfileScreen() {
       <MainHeader
         left={<Back onPress={() => router.back()} width={35} height={35} />}
         header={"Settings"}
-        right={
-          <Search
-            onPress={() => router.push("/search")}
-            width={35}
-            height={35}
-          />
-        }
+        right={<View />}
       />
 
       <View className={"flex-row items-center gap-3 py-6"}>
@@ -77,24 +70,26 @@ export default function ProfileScreen() {
         </Text>
       </View>
 
-      <FlatList
-        data={stuff}
-        numColumns={2}
-        renderItem={({ item }: any) => (
-          <Pressable
-            onPress={() => router.push(item.path)}
-            className="flex-row items-center  justify-center bg-[#F6F6F6] w-[48%] px-4 py-3 rounded-[8px] mb-4"
-          >
-            <Text className="text-base font-inter-regular text-center">
-              {item.name}
-            </Text>
-          </Pressable>
-        )}
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          marginBottom: 0,
-        }}
-      />
+      <View>
+        <FlatList
+          data={stuff}
+          numColumns={2}
+          renderItem={({ item }: any) => (
+            <Pressable
+              onPress={() => router.push(item.path)}
+              className="flex-row items-center  justify-center bg-[#F6F6F6] w-[48%] px-4 py-3 rounded-[8px] mb-4"
+            >
+              <Text className="text-base font-inter-regular text-center">
+                {item.name}
+              </Text>
+            </Pressable>
+          )}
+          columnWrapperStyle={{
+            justifyContent: "space-between",
+            marginBottom: 0,
+          }}
+        />
+      </View>
 
       <View>
         <Text className="font-inter-semibold text-lg ">Account Settings</Text>

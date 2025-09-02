@@ -1,10 +1,13 @@
 import Back from "@/assets/images/iconsvg/back.svg";
-import { GridProductCard } from "@/components/Products/ProductCard";
+import OrderCard from "@/components/OrderCard";
 import { Button } from "@/components/Shared/Button";
 import MainHeader from "@/components/Shared/MainHeader";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useGetCartQuery } from "@/services/cart";
-import { useGetProductsQuery } from "@/services/products";
+import {
+  useGetCompleteOrdersQuery,
+  useGetOngoingOrdersQuery,
+} from "@/services/products";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -29,10 +32,9 @@ const MyOrder = () => {
     getItemQuantity,
   } = useLocalCart(cart?.data.items);
 
-  const { data: products, isLoading } = useGetProductsQuery({
-    page: 1,
-    per_page: 5,
-  });
+  const { data: orders, isLoading } = useGetOngoingOrdersQuery();
+  const { data: completdOrders, isLoading: loadingOrders } =
+    useGetCompleteOrdersQuery();
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -59,46 +61,48 @@ const MyOrder = () => {
             />
           </View>
 
-          {loadingCart ? (
-            <View className=" justify-center items-center pt-20">
-              <ActivityIndicator color={"#B29954"} />
-              <Text className="pt-2">
-                {toggleOrder === "ongoing"
-                  ? "Loading Ongoing Order.."
-                : "Loading Completed Order.."}
-              </Text>
-            </View>
-          ) : (
-            <>
-              {toggleOrder === "ongoing" ? (
+          <>
+            {toggleOrder === "ongoing" && (
+              <>
+                {isLoading && (
+                  <View className=" justify-center items-center pt-20">
+                    <ActivityIndicator color={"#B29954"} />
+                    <Text className="pt-2">Loading Ongoing Order..</Text>
+                  </View>
+                )}
+                {orders?.data.orders.length === 0 && (
+                  <View className=" justify-center items-center pt-20">
+                    <Text className="pt-2">No completed orders</Text>
+                  </View>
+                )}
                 <FlatList
-                  data={cart?.data.items}
-                  renderItem={({ item }) => (
-                    <GridProductCard
-                      order
-                      currentQuantity={getItemQuantity(item.cart_item_key)}
-                      onUpdateQuantity={() => {}}
-                      onRemove={() => {}}
-                      item={item!}
-                    />
-                  )}
+                  data={orders?.data.orders}
+                  renderItem={({ item }) => <OrderCard {...item} />}
                 />
-              ) : (
+              </>
+            )}
+
+            {toggleOrder === "completed" && (
+              <>
+                {isLoading && (
+                  <View className=" justify-center items-center pt-20">
+                    <ActivityIndicator color={"#B29954"} />
+                    <Text className="pt-2">Loading Ongoing Order..</Text>
+                  </View>
+                )}
+
+                {completdOrders?.data.orders.length === 0 && (
+                  <View className=" justify-center items-center pt-20">
+                    <Text className="pt-2">No completed orders</Text>
+                  </View>
+                )}
                 <FlatList
-                  data={cart?.data.items}
-                  renderItem={({ item }) => (
-                    <GridProductCard
-                      order
-                      currentQuantity={getItemQuantity(item.cart_item_key)}
-                      onUpdateQuantity={() => {}}
-                      onRemove={() => {}}
-                      item={item!}
-                    />
-                  )}
+                  data={completdOrders?.data.orders}
+                  renderItem={({ item }) => <OrderCard {...item} />}
                 />
-              )}
-            </>
-          )}
+              </>
+            )}
+          </>
         </ScrollView>
       </View>
     </SafeAreaView>

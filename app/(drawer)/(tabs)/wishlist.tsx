@@ -2,6 +2,7 @@ import Back from "@/assets/images/iconsvg/back.svg";
 import Search from "@/assets/images/iconsvg/search.svg";
 import ProductCard from "@/components/Products/ProductCard";
 import MainHeader from "@/components/Shared/MainHeader";
+import TabWrapper from "@/components/Shared/TabWrapper";
 import { useWishlist } from "@/lib/wishlistCtx";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -13,7 +14,7 @@ export default function WishlistScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="bg-white flex-1 px-4">
+    <TabWrapper>
       <MainHeader
         left={<Back onPress={() => router.back()} width={35} height={35} />}
         header={"WishList"}
@@ -51,6 +52,6 @@ export default function WishlistScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </TabWrapper>
   );
 }

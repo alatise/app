@@ -1,3 +1,4 @@
+import { CustomAlertWrapper } from "@/components/Shared/CustomAlertWrapper";
 import { toastConfig } from "@/constants/toastConfig";
 import "@/global.css";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
@@ -103,6 +104,7 @@ export default function RootLayoutNav() {
               </View>
             </WishlistProvider>
           </ProductProvider>
+          {/* <CustomAlertWrapper /> */}
         </SessionProvider>
         <Toast topOffset={40} position="top" config={toastConfig} />
       </Provider>

@@ -5,6 +5,7 @@ import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
+import uuid from "react-native-uuid";
 import {
   Dimensions,
   Image,
@@ -30,6 +31,8 @@ export default function SplashScreenComponent() {
   const logoOpacity = useSharedValue(0);
   const circleScale = useSharedValue(0);
   const versionOpacity = useSharedValue(0);
+
+
 
   const [fontsLoaded] = useFonts({});
 

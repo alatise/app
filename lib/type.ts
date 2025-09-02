@@ -159,12 +159,12 @@ export interface ProductParam {
   id?: number;
   page: number;
   per_page: number;
-  search?: string
-  order?: string
-  orderby?: string
-  min_price?: number
-  max_price?: number
-  category?: string
+  search?: string;
+  order?: string;
+  orderby?: string;
+  min_price?: number;
+  max_price?: number;
+  category?: string;
 }
 
 interface Variations {
@@ -361,4 +361,43 @@ export interface OrderStuff {
 
 export interface CheckoutResponse extends CommonState {
   data: OrderStuff;
+}
+
+
+
+export interface Order {
+  id: number;
+  order_number: number;
+  status: string;
+  status_name: string;
+  items: {
+    id: number;
+    product_id: number;
+    name: string;
+    quantity: number
+    price: string;
+    image_url: string;
+  }[]
+  total: number;
+  currency: string;
+  estimated_delivery: string;
+  order_time: string;
+  billing_address: {
+    first_name: string;
+    last_name: string;
+    address_1: string;
+    address_2: string;
+    city: string;
+    postcode: string;
+    phone: string;
+  };
+  payment_method: string;
+  order_notes: string;
+}
+
+export interface OrderResponse {
+  data: {
+    orders: Order[];
+    total_ongoing: number;
+  };
 }

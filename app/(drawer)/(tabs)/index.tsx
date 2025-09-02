@@ -6,6 +6,7 @@ import Products from "@/components/Products";
 import { CategoryItem } from "@/components/Shared/CategoryItem";
 import MainHeader from "@/components/Shared/MainHeader";
 import SearchResultsComp from "@/components/Shared/SearchResults";
+import TabWrapper from "@/components/Shared/TabWrapper";
 import { useProductCtx } from "@/lib/productsCtx";
 import { SearchProductsResponse } from "@/lib/type";
 import { useHomeDataQuery } from "@/services/products";
@@ -13,9 +14,8 @@ import { DrawerActions, useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, TextInput } from "react-native";
-
+import uuid from "react-native-uuid";
 import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const [showSearch, setShowSearch] = useState(false);
@@ -23,6 +23,9 @@ export default function HomeScreen() {
   const { data, isLoading } = useHomeDataQuery();
   const { selectCategory, setSelectCategory } = useProductCtx();
   const categories = data?.data?.featured_categories.map((c) => c);
+
+    console.log(">>>>uuuidddd",  uuid.v4(),);
+  
 
   // search state
   const [searchState, setSearchState] = useState("");
@@ -74,15 +77,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: "#ffffff",
-        paddingHorizontal: 16,
-        paddingTop: 10,
-        paddingBottom: 100,
-      }}
-    >
+    <TabWrapper>
       <MainHeader
         left={
           <Menu
@@ -146,6 +141,6 @@ export default function HomeScreen() {
           <Products />
         </>
       )}
-    </SafeAreaView>
+    </TabWrapper>
   );
 }

@@ -48,9 +48,9 @@ const BottomMenu = ({ state, navigation, descriptors }: Props) => {
   };
 
   return (
-    <View className={`${theme.dark ? "bg-white" : "bg-card"}`}>
+    <View className={`${theme.dark ? "bg-white" : "bg-card"} mb-10`}>
       <View
-        className={`h-[80px] border-t ${theme.dark ? "border-dark-border" : "border-border-color"}`}
+        className={`h-[65px] border-t ${theme.dark ? "border-dark-border" : "border-border-color"}`}
       >
         <View className={`${GlobalClasses.container} flex-row  px-0 pt-2`}>
           {state.routes.map((route: any, index: number) => {

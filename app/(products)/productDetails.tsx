@@ -3,6 +3,7 @@ import Cart from "@/assets/images/iconsvg/cart2.svg";
 import { Button } from "@/components/Shared/Button";
 
 import MainHeader from "@/components/Shared/MainHeader";
+import TabWrapper from "@/components/Shared/TabWrapper";
 import { useSession } from "@/lib/authCtx";
 import { useProductCtx } from "@/lib/productsCtx";
 import { useWishlist } from "@/lib/wishlistCtx";
@@ -18,13 +19,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const productDetails = () => {
   const { product } = useProductCtx();
   const { name, price, image_url, description, id } = product!;
-  console.log(">>>>>>item", product);
-
   const { wishlist, toggleWishlist } = useWishlist();
   const inWishlist = wishlist.some((p) => p.id === id);
 
@@ -66,9 +64,9 @@ const productDetails = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View className="flex-1 bg-white  px-4 pt-6">
-        <ScrollView>
+    <TabWrapper>
+      <View className="flex-1 bg-white mb-16">
+        <ScrollView className="pb-4">
           <MainHeader
             left={<Back onPress={() => router.back()} width={35} height={35} />}
             header={"Product Details"}
@@ -110,7 +108,7 @@ const productDetails = () => {
             {description}
           </Text>
 
-          <View className="flex-row items-center justify-between mt-8 px-10">
+          <View className="flex-row items-center justify-between my-8 px-10">
             <Text className="font-montserrat-Medium">Sets</Text>
 
             <View className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] w-[223px]">
@@ -146,7 +144,7 @@ const productDetails = () => {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </TabWrapper>
   );
 };
 

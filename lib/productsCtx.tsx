@@ -67,9 +67,7 @@ export function ProductProvider({ children }: PropsWithChildren) {
   const [subCategory, setSubCategory] = useState<Subcategory | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [cartState, setCartState] = useState<FinalCartData | null>(
-    null
-  );
+  const [cartState, setCartState] = useState<FinalCartData | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const handleCategoryChange = (category: Category) => {
     setSelectCategory(category);
