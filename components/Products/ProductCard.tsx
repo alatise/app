@@ -145,7 +145,7 @@ const ProductCard = ({ ...item }: Product) => {
         setProduct(item);
         router.push("/(products)/productDetails");
       }}
-      className="bg-white w-[48%] h-[280px]  shadow-slate-50 shadow border-[0.2px] border-[#ccc] rounded-[6px] p-2 py-4"
+      className="bg-white w-[48%] h-[265px]  shadow-slate-50 shadow border-[0.2px] border-[#ccc] rounded-[6px] p-2 py-4"
     >
       <View className="flex-row absolute top-8 z-10 right-5 justify-end">
         <Pressable
@@ -176,23 +176,8 @@ const ProductCard = ({ ...item }: Product) => {
         <View className="w-[107px] pt-4">
           <Text className="text-[11px] font-inter-regular">{name}</Text>
           <Text className="text-[13px] font-inter-semibold pt-2">
-            £{price.toLocaleString("en-GB")}
+            £ {Number(price).toLocaleString("GBP")}
           </Text>
-
-          <View className="flex-row gap-10 pt-3">
-            <View className="flex-row gap-1">
-              {rating === 0 ? (
-                <NoStar />
-              ) : (
-                Array.from({ length: rating }).map((_, idx) => (
-                  <Star width={10} key={idx} />
-                ))
-              )}
-            </View>
-            <Text className="text-[#A4A9B3] font-inter-light text-[9px]">
-              {rating}
-            </Text>
-          </View>
         </View>
         <Arrow />
       </View>

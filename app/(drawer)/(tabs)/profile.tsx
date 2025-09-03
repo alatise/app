@@ -50,6 +50,10 @@ export default function ProfileScreen() {
       name: "WishList",
       path: "/(drawer)/(tabs)/wishlist",
     },
+    {
+      name: "Change Password",
+      path: "/(products)/changePassword",
+    },
   ];
   return (
     <TabWrapper>

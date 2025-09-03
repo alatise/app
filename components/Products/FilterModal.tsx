@@ -6,6 +6,7 @@ import { FlatList, Text, View } from "react-native";
 import { Button } from "../Shared/Button";
 import { CategoryItem } from "../Shared/CategoryItem";
 import PriceRangeSlider from "./PriceRangeSlider/PriceRangeSlider";
+import { ScrollView } from "react-native-gesture-handler";
 
 // const products = [
 //   {
@@ -114,7 +115,7 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
           </Text>
         </View>
 
-        <View className="flex-row flex-wrap">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row flex-wrap">
           <FlatList
             showsHorizontalScrollIndicator={false}
             horizontal
@@ -129,7 +130,7 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
             style={{ marginTop: 6, flexWrap: "wrap" }}
             keyExtractor={(item) => `${item.id}`}
           />
-        </View>
+        </ScrollView>
 
         {/* <View className="flex-row justify-between items-center  mb-4 mt-4">
           <Text className=" font-montserrat-Medium text-[17px]">Size:</Text>

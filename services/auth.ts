@@ -1,4 +1,5 @@
 import {
+  ChangePasswordRequest,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   LoginRequest,
@@ -71,6 +72,17 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: [],
     }),
+    changePassword: builder.mutation<
+      ForgotPasswordResponse,
+      ChangePasswordRequest
+    >({
+      query: (data) => ({
+        url: `/auth/change-password`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: [],
+    }),
     getProfile: builder.query<{ data: User }, void>({
       query: () => ({
         url: `/profile`,
@@ -102,4 +114,5 @@ export const {
   useResetPasswordMutation,
   useGetProfileQuery,
   useEditProfileMutation,
+  useChangePasswordMutation
 } = authApi;

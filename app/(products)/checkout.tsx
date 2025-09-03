@@ -17,7 +17,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
 import { WebView } from "react-native-webview";
 // import {
@@ -60,22 +59,8 @@ const checkout = () => {
     };
   });
 
-  console.log(">>>>uuuidddd", uuid.v4());
-
-  console.log(">>>>>>line_items", line_items);
-
   const checkoutPaymentLink = async () => {
     setIsLoading(true);
-
-    console.log(">>>>d", {
-      idempotency_key: uuid.v4(),
-      order: {
-        location_id: "LQ9TND1H83BK3",
-        customerId: data?.data.email,
-        reference_id: uuid.v4(),
-        line_items,
-      },
-    });
 
     try {
       await axios

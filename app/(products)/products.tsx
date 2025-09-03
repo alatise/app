@@ -253,7 +253,7 @@ const Products = () => {
             <View className="flex-1">
               {/* Your top section */}
               <View>
-                <View className="flex-row justify-between">
+                <View className="flex-row justify-between gap-10">
                   <View className="flex-row gap-2 w-[62%]">
                     <Arrow
                       width={45}
@@ -274,8 +274,8 @@ const Products = () => {
                   <View className="flex-row items-center gap-4">
                     <Grid
                       onPress={() => setToggleGrid(!toggleGrid)}
-                      width={18}
-                      height={18}
+                      width={16}
+                      height={16}
                     />
                     <Pressable className="relative">
                       {loadingCart ? (
@@ -283,8 +283,8 @@ const Products = () => {
                       ) : (
                         <Cart
                           onPress={() => router.push("/myCart")}
-                          width={35}
-                          height={35}
+                          width={32}
+                          height={32}
                         />
                       )}
                       <View className="bg-red-500 absolute flex-row justify-center items-center w-[16px] top-0 right-0 h-[16px]  rounded-full">
@@ -390,6 +390,7 @@ const Products = () => {
           <Pressable
             onPress={() =>
               setFilters({
+                ...filters,
                 min_price: 0,
                 max_price: 0,
                 category: "",

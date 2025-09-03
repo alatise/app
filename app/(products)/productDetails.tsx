@@ -10,7 +10,7 @@ import { useWishlist } from "@/lib/wishlistCtx";
 import { useAddToCartMutation, useGetCartQuery } from "@/services/cart";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -63,6 +63,30 @@ const productDetails = () => {
     return cart?.data.items.some((c) => c.product_id === id);
   };
 
+  const setOptions = product?.variations && product!?.variations?.map(
+    (v) => v.attributes.attribute_pa_sets
+  );
+
+  const [showOptions, setShowOptions] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+
+  const handleSelect = (option: string) => {
+    setSelectedOption(option);
+    setShowOptions(false); // hide dropdown after selection
+  };
+
+  const selectVariation = product?.variations && product?.variations.find(
+    (v) => v.attributes.attribute_pa_sets === selectedOption
+  );
+
+  console.log(
+    ">>>>>>selectVariation",
+    selectVariation?.image.url,
+    selectVariation?.image.title,
+    selectVariation?.display_price
+  );
+  
+
   return (
     <TabWrapper>
       <View className="flex-1 bg-white mb-16">
@@ -91,32 +115,76 @@ const productDetails = () => {
           <View className=" bg-[#999999] rounded-[12px] mt-3">
             {/* <Product width={352} className="mt-10" /> */}
             <Image
-              source={{ uri: image_url }}
+              source={{
+                uri: selectVariation ? selectVariation.image.url : image_url,
+              }}
               width={352}
               height={260}
               className="rounded-[12px] w-full"
             />
           </View>
 
-          <Text className="font-montserrat-Medium text-xl pt-5">{name}</Text>
+          <Text className="font-montserrat-Medium text-xl pt-5">
+            {selectVariation ? selectVariation.image.title : name}
+          </Text>
 
-          <Text className="font-montserrat-Bold text-2xl pt-3">£{price}</Text>
+          <Text className="font-montserrat-Bold text-2xl pt-3">
+            {" "}
+            £ {Number(price).toLocaleString("GBP")}
+          </Text>
 
-          <Text className="font-montserrat-Semibold pt-3">Description:</Text>
+          {product?.variations?.length != 0 && (
+            <>
+              <View className="flex-row items-center justify-center my-4  gap-4 px-10">
+                <Text className="font-montserrat-Medium w-[20%]">Sets</Text>
 
+                <View className=" w-[60%] items-center justify-center">
+                  <Pressable
+                    onPress={() => setShowOptions((prev) => !prev)}
+                    className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] w-[223px]"
+                  >
+                    <Text className="font-montserrat-Regular text-sm text-center">
+                      {selectedOption ? selectedOption : "Choose an option"}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              <View className="flex-row items-center justify-center my-4  gap-4 px-10">
+                <View className="w-[20%]" />
+
+                {showOptions && (
+                  <View className="bg-white mt-2 rounded-[8px] border border-gray-300 w-[60%]">
+                    {setOptions?.map((option, index) => {
+                      const isSelected = selectedOption === option;
+                      return (
+                        <Pressable
+                          key={index}
+                          onPress={() => handleSelect(option)}
+                          className={`px-4 py-3 rounded-[8px] ${
+                            isSelected ? "bg-secondary" : "bg-white"
+                          }`}
+                        >
+                          <Text
+                            className={`text-sm ${
+                              isSelected ? "text-white font-bold" : "text-black"
+                            }`}
+                          >
+                            {option}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            </>
+          )}
+
+          <Text className="font-montserrat-Semibold pt-1">Description:</Text>
           <Text className="pt-3 text-[#797777] font-montserrat-Regular text-sm tracking-wider">
             {description}
           </Text>
-
-          <View className="flex-row items-center justify-between my-8 px-10">
-            <Text className="font-montserrat-Medium">Sets</Text>
-
-            <View className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] w-[223px]">
-              <Text className="font-montserrat-Regular text-sm text-center">
-                Choose an option
-              </Text>
-            </View>
-          </View>
         </ScrollView>
 
         <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t pr-4 py-4">

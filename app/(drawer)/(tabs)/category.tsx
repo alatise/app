@@ -66,6 +66,8 @@ export default function CategoryScreen() {
     ...(categories ?? []),
   ];
 
+  console.log(">>>>>>categories data", sortedCategories);
+
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const lastLoadedPageRef = useRef(1);
   const highestViewedPageRef = useRef(1); // Track the highest page actually viewed
@@ -89,7 +91,7 @@ export default function CategoryScreen() {
     isLoading: loadingProducts,
     isFetching,
   } = useGetProductsByCategoryIdQuery({
-    id: selectCategory!?.id,
+    id: selectCategory!?.id === 0 ? 18 : selectCategory?.id,
     page: currentPage,
     per_page: 16,
   });
@@ -236,20 +238,22 @@ export default function CategoryScreen() {
               </Text>
             </View>
           ) : (
-            <FlatList
-              showsHorizontalScrollIndicator={false}
-              horizontal
-              data={sortedCategories}
-              renderItem={({ item }) => (
-                <CategoryItem
-                  setSelectCategory={setSelectCategory!}
-                  selectCategory={selectCategory!}
-                  item={item}
-                />
-              )}
-              style={{ marginTop: 10 }}
-              keyExtractor={(item) => `${item.id}`}
-            />
+            <View className="flex items-center justify-center">
+              <FlatList
+                showsHorizontalScrollIndicator={false}
+                horizontal
+                data={categories}
+                renderItem={({ item }) => (
+                  <CategoryItem
+                    setSelectCategory={setSelectCategory!}
+                    selectCategory={selectCategory!}
+                    item={item}
+                  />
+                )}
+                style={{ marginTop: 10 }}
+                keyExtractor={(item) => `${item.id}`}
+              />
+            </View>
           )}
 
           <Text className="font-inter-semibold text-lg pt-6">

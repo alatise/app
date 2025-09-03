@@ -176,7 +176,7 @@ const ResetPassword = () => {
               <Button
                 loading={isLoading}
                 textClassName="text-white items-center text-[20px] font-inter-medium  "
-                className="mt-3 h-[54px]  bg-secondary"
+                className="mt-3 h-[54px] bg-secondary"
                 children="Sign In"
                 onPress={handleSubmit(onSubmit)}
               />

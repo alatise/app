@@ -13,9 +13,13 @@ import { useHomeDataQuery } from "@/services/products";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, TextInput } from "react-native";
-import uuid from "react-native-uuid";
-import { Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
   const [showSearch, setShowSearch] = useState(false);
@@ -23,9 +27,6 @@ export default function HomeScreen() {
   const { data, isLoading } = useHomeDataQuery();
   const { selectCategory, setSelectCategory } = useProductCtx();
   const categories = data?.data?.featured_categories.map((c) => c);
-
-    console.log(">>>>uuuidddd",  uuid.v4(),);
-  
 
   // search state
   const [searchState, setSearchState] = useState("");
@@ -95,7 +96,12 @@ export default function HomeScreen() {
               height={35}
             />
           ) : (
-            <Close onPress={() => setShowSearch(false)} />
+            <Close
+              onPress={() => {
+                setSearchState("")
+                setShowSearch(false);
+              }}
+            />
           )
         }
       />

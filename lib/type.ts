@@ -82,6 +82,11 @@ export interface ResetPasswordRequest {
 }
 
 export interface ChangePasswordRequest {
+  current_password: string;
+  old_password: string;
+}
+
+export interface ChangePasswordRequest {
   new_password: string;
   current_password: string;
 }
@@ -145,7 +150,7 @@ export interface Product {
   attributes: {
     pa_sets: {};
   };
-  variations: Variations;
+  variations: Variations[]
 }
 
 export interface SearchProductsResponse {
@@ -363,8 +368,6 @@ export interface CheckoutResponse extends CommonState {
   data: OrderStuff;
 }
 
-
-
 export interface Order {
   id: number;
   order_number: number;
@@ -374,10 +377,10 @@ export interface Order {
     id: number;
     product_id: number;
     name: string;
-    quantity: number
+    quantity: number;
     price: string;
     image_url: string;
-  }[]
+  }[];
   total: number;
   currency: string;
   estimated_delivery: string;
