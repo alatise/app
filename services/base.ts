@@ -29,9 +29,58 @@ const axiosBaseQuery =
 
       return { data: result.data };
     } catch (axiosError) {
-      let err: any = axiosError as AxiosError;
+      const err = axiosError as AxiosError<any>;
+      // return {
+      //   error: { status: err.response?.status, data: err.response?.data },
+      // };
+      if (err.response?.status === 401) {
+        try {
+          const userId = await SecureStore.getItemAsync("user_id");
+
+          if (!userId) {
+            throw new Error("No refresh token or user id available");
+          }
+
+          // Request new access token
+          const refreshResponse = await axios.post(baseUrl + "/auth/refresh", {
+            user_id: Number(userId),
+          });
+
+          const session = refreshResponse.data.token;
+
+          // Save new token
+          await SecureStore.setItemAsync("session", session);
+
+          let headers: AxiosRequestConfig["headers"] = {};
+
+          if (session) {
+            headers.Authorization = `Bearer ${session}`;
+          }
+
+          // Retry original request with new token
+          const result = await axios({
+            url: baseUrl + url,
+            method,
+            data,
+            headers,
+          });
+
+          return { data: result.data };
+        } catch (refreshError) {
+          return {
+            error: {
+              status: 401,
+              data: { message: "Session expired. Please log in again." },
+            },
+          };
+        }
+      }
+
       return {
-        error: { status: err.response?.status, data: err.response?.data },
+        error: {
+          status: err.response?.status,
+          data: err.response?.data || err.message,
+        },
       };
     }
   };

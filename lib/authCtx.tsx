@@ -1,7 +1,7 @@
-import { CustomAlert } from "@/constants/toastConfig";
 import { useStorageState } from "@/hooks/useStorageState";
 import { useSigninMutation, useSignupMutation } from "@/services/auth";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { createContext, use, useState, type PropsWithChildren } from "react";
 import { LoginRequest, RegisterRequest } from "./type";
 
@@ -85,10 +85,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
     setLoading(true);
     try {
       const response = await performSignin(credentials).unwrap();
-      console.log(">>>>> login response", response.data);
-
       if (response.status === 200) {
         setSession(response.data.token);
+        SecureStore.setItem("user_id", JSON.stringify(response.data.user_id));
         return Promise.resolve();
       }
     } catch (error: any) {
