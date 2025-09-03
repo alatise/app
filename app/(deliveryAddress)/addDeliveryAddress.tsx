@@ -2,6 +2,7 @@ import Back from "@/assets/images/iconsvg/back.svg";
 import Input from "@/components/Input/Input";
 import { Button } from "@/components/Shared/Button";
 import MainHeader from "@/components/Shared/MainHeader";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useSession } from "@/lib/authCtx";
 import { DeliveryAddressRequest } from "@/lib/type";
 import { useAddDeliveryAddressMutation } from "@/services/deliveryAddress";
@@ -18,7 +19,7 @@ const AddDeliveryAddress = () => {
 
   const [type, setType] = useState("Home");
 
-  const { showAlert, requestResponse, setRequestResponse } = useSession();
+  const { showAlert, requestResponse, alertVisible, setRequestResponse } = useSession();
 
   const schema = z.object({
     zip: z.string().min(6, "Zip code is require"),
@@ -180,6 +181,13 @@ const AddDeliveryAddress = () => {
           />
         </View>
       </View>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        message={requestResponse.message!}
+        type="error"
+      />
     </SafeAreaView>
   );
 };

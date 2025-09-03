@@ -4,6 +4,7 @@ import OTPInput from "@/components/Input/OTPInput";
 import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
+import { CustomAlert } from "@/constants/toastConfig";
 // import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/lib/authCtx";
 import { useOtpConfirmMutation, useSendOtpMutation } from "@/services/auth";
@@ -176,12 +177,12 @@ const OTPAuthentication = () => {
         </View>
       </ScrollView>
 
-      {/* <CustomAlert
+      <CustomAlert
         visible={alertVisible}
-        title={requestResponse.title}
+        title={requestResponse.message!}
         message={requestResponse.message}
         type={requestResponse.type!}
-      /> */}
+      />
     </View>
   );
 };

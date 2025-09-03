@@ -14,12 +14,12 @@ const TabWrapper: React.FC<TabWrapperProps> = ({ children }) => {
       className={`flex-1 px-4 pt-4`}
     >
       {children}
-      <CustomAlert
+      {/* <CustomAlert
         visible={alertVisible}
         title={requestResponse.title}
         message={requestResponse.message}
         type={requestResponse.type!}
-      />
+      /> */}
     </SafeAreaView>
   );
 };

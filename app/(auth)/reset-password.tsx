@@ -4,6 +4,7 @@ import Input from "@/components/Input/Input";
 import { Button } from "@/components/Shared/Button";
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useSession } from "@/lib/authCtx";
 import { ResetPasswordRequest } from "@/lib/type";
 import { useResetPasswordMutation } from "@/services/auth";
@@ -25,8 +26,13 @@ import { z } from "zod";
 
 const ResetPassword = () => {
   const router = useRouter();
-  const { hideAlert, requestResponse, setRequestResponse, showAlert } =
-    useSession();
+  const {
+    hideAlert,
+    requestResponse,
+    alertVisible,
+    setRequestResponse,
+    showAlert,
+  } = useSession();
 
   const { email, otpStr } = useLocalSearchParams<{
     email: string;
@@ -195,6 +201,13 @@ const ResetPassword = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        message={requestResponse.message!}
+        type={requestResponse.type!}
+      />
     </View>
   );
 };

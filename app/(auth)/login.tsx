@@ -16,6 +16,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { z } from "zod";
+import { CustomAlert } from "@/constants/toastConfig";
 
 const Login = () => {
   const router = useRouter();
@@ -195,11 +196,12 @@ const Login = () => {
         </View>
       </ScrollView>
 
-      {/* <CustomAlert
+      <CustomAlert
         visible={alertVisible}
         title={requestResponse.message!}
-        type="error"
-      /> */}
+        message={requestResponse.message!}
+        type={requestResponse.type!}
+      />
     </View>
   );
 };

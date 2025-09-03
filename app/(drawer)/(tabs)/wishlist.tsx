@@ -1,5 +1,4 @@
 import Back from "@/assets/images/iconsvg/back.svg";
-import Search from "@/assets/images/iconsvg/search.svg";
 import ProductCard from "@/components/Products/ProductCard";
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
@@ -7,7 +6,6 @@ import { useWishlist } from "@/lib/wishlistCtx";
 import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WishlistScreen() {
   const { wishlist, toggleWishlist } = useWishlist();
@@ -18,13 +16,7 @@ export default function WishlistScreen() {
       <MainHeader
         left={<Back onPress={() => router.back()} width={35} height={35} />}
         header={"WishList"}
-        right={
-          <Search
-            width={35}
-            height={35}
-            onPress={() => router.push("/search")}
-          />
-        }
+        right={<View />}
       />
 
       <View className="pt-10">

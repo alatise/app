@@ -4,13 +4,15 @@ import { Button } from "@/components/Shared/Button";
 
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useSession } from "@/lib/authCtx";
 import { useProductCtx } from "@/lib/productsCtx";
+import { Product } from "@/lib/type";
 import { useWishlist } from "@/lib/wishlistCtx";
 import { useAddToCartMutation, useGetCartQuery } from "@/services/cart";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -21,12 +23,13 @@ import {
 } from "react-native";
 
 const productDetails = () => {
-  const { product } = useProductCtx();
+  const { product, setProduct } = useProductCtx();
   const { name, price, image_url, description, id } = product!;
   const { wishlist, toggleWishlist } = useWishlist();
   const inWishlist = wishlist.some((p) => p.id === id);
 
-  const { showAlert, setRequestResponse } = useSession();
+  const { showAlert, setRequestResponse, alertVisible, requestResponse } =
+    useSession();
 
   const { data: cart, isLoading: loadingCart } = useGetCartQuery();
   const [performAddToCart, { isLoading: addingToCart }] =
@@ -63,29 +66,58 @@ const productDetails = () => {
     return cart?.data.items.some((c) => c.product_id === id);
   };
 
-  const setOptions = product?.variations && product!?.variations?.map(
-    (v) => v.attributes.attribute_pa_sets
-  );
+  const setOptions =
+    product?.variations &&
+    product!?.variations?.map((v) => v.attributes.attribute_pa_sets);
 
   const [showOptions, setShowOptions] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>("");
 
   const handleSelect = (option: string) => {
     setSelectedOption(option);
     setShowOptions(false); // hide dropdown after selection
   };
 
-  const selectVariation = product?.variations && product?.variations.find(
-    (v) => v.attributes.attribute_pa_sets === selectedOption
-  );
+  const selectVariation =
+    product?.variations &&
+    product?.variations.find(
+      (v) => v.attributes.attribute_pa_sets === selectedOption
+    );
 
-  console.log(
-    ">>>>>>selectVariation",
-    selectVariation?.image.url,
-    selectVariation?.image.title,
-    selectVariation?.display_price
-  );
-  
+  useEffect(() => {
+    if (selectedOption) {
+      setProduct(selectedProducts);
+    }
+  }, [selectedOption]);
+
+  const selectedProducts: Product = {
+    id: selectVariation?.variation_id!,
+    name: selectVariation?.image.title!,
+    slug: "",
+    description: product?.description!,
+    price: selectVariation?.display_price!,
+    regular_price: "",
+    sale_price: "",
+    on_sale: false,
+    image_url: selectVariation?.image.url!,
+    gallery_images: [],
+    rating: 0,
+    rating_count: 0,
+    category_id: 0,
+    category_name: "",
+    stock_status: "",
+    in_stock: false,
+    weight: "",
+    dimensions: {
+      length: "",
+      width: "",
+      height: "",
+    },
+    attributes: {
+      pa_sets: {},
+    },
+    variations: product?.variations!,
+  };
 
   return (
     <TabWrapper>
@@ -116,7 +148,7 @@ const productDetails = () => {
             {/* <Product width={352} className="mt-10" /> */}
             <Image
               source={{
-                uri: selectVariation ? selectVariation.image.url : image_url,
+                uri: image_url,
               }}
               width={352}
               height={260}
@@ -124,9 +156,7 @@ const productDetails = () => {
             />
           </View>
 
-          <Text className="font-montserrat-Medium text-xl pt-5">
-            {selectVariation ? selectVariation.image.title : name}
-          </Text>
+          <Text className="font-montserrat-Medium text-xl pt-5">{name}</Text>
 
           <Text className="font-montserrat-Bold text-2xl pt-3">
             {" "}
@@ -212,6 +242,13 @@ const productDetails = () => {
           />
         </View>
       </View>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        message={requestResponse.message!}
+        type={requestResponse.type!}
+      />
     </TabWrapper>
   );
 };

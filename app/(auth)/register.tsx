@@ -308,7 +308,8 @@ const Register = () => {
       <CustomAlert
         visible={alertVisible}
         title={requestResponse.message!}
-        type="error"
+        message={requestResponse.message!}
+        type={requestResponse.type!}
       />
     </View>
   );

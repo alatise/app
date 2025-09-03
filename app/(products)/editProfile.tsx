@@ -4,6 +4,7 @@ import Input from "@/components/Input/Input";
 import { Button } from "@/components/Shared/Button";
 
 import MainHeader from "@/components/Shared/MainHeader";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useSession } from "@/lib/authCtx";
 import { useEditProfileMutation, useGetProfileQuery } from "@/services/auth";
 import { Feather } from "@expo/vector-icons";
@@ -38,7 +39,7 @@ const EditProfile = () => {
     },
   });
 
-  const { setRequestResponse, showAlert } = useSession();
+  const { setRequestResponse, alertVisible, requestResponse, showAlert } = useSession();
 
   const onSubmit = async ({ phone, name }: any) => {
     try {
@@ -101,7 +102,7 @@ const EditProfile = () => {
               control={control}
               name="email"
               disable={true}
-              defaultValue={isLoading ? "loading..": data?.data.email}
+              defaultValue={isLoading ? "loading.." : data?.data.email}
               backround
               inputLg
               placeholder="Email Address"
@@ -134,6 +135,13 @@ const EditProfile = () => {
           />
         </View>
       </View>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        message={requestResponse.message!}
+        type={requestResponse.type!}
+      />
     </SafeAreaView>
   );
 };

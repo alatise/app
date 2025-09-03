@@ -29,17 +29,9 @@ const ChangePassword = () => {
 
   const [performChangePassword, { isLoading }] = useChangePasswordMutation();
 
-  const handleBackToSignIn = () => {
-    router.push("/(auth)/login");
-  };
-
-  const handleGoBack = () => {
-    router.back();
-  };
-
   const schema = z.object({
-    current_password: z.string().trim().min(6, "Old password is required"),
-    new_password: z.string().trim().min(6, "Please confirm your password"),
+    current_password: z.string().trim().min(6, "current password is required"),
+    new_password: z.string().trim().min(6, "New Password is required"),
   });
 
   const {
@@ -80,7 +72,7 @@ const ChangePassword = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View className="flex-1 bg-white pt-6 px-4">
+      <View className="flex-1 bg-white pt-14 px-4">
         <ScrollView>
           <MainHeader
             left={<Back onPress={() => router.back()} width={35} height={35} />}
@@ -139,7 +131,7 @@ const ChangePassword = () => {
           visible={alertVisible}
           title={requestResponse.message!}
           message={requestResponse.message!}
-          type="error"
+          type={requestResponse.type!}
         />
       </View>
     </SafeAreaView>
