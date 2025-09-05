@@ -43,7 +43,7 @@ const AddDeliveryAddress = () => {
     const { type: name, ...item } = data;
     try {
       const response = await performAddDeliveryAddress({
-        type,
+        type: 'Home',
         ...item,
       }).unwrap();
       if (response.status === 200) {
@@ -142,7 +142,7 @@ const AddDeliveryAddress = () => {
               />
             </View>
 
-            <Text className="font-montserrat-Semibold text-base ">
+            {/* <Text className="font-montserrat-Semibold text-base ">
               Save Address As{" "}
             </Text>
             <ScrollView
@@ -167,7 +167,7 @@ const AddDeliveryAddress = () => {
                   </Text>
                 </Pressable>
               ))}
-            </ScrollView>
+            </ScrollView> */}
           </View>
         </ScrollView>
 

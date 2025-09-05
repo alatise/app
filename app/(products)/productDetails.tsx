@@ -122,28 +122,28 @@ const productDetails = () => {
   return (
     <TabWrapper>
       <View className="flex-1 bg-white mb-16">
+        <MainHeader
+          left={<Back onPress={() => router.back()} width={35} height={35} />}
+          header={"Product Details"}
+          right={
+            <Pressable
+              onPress={() => router.push("/myCart")}
+              className="relative"
+            >
+              {loadingCart ? (
+                <ActivityIndicator size={"small"} />
+              ) : (
+                <Cart width={35} height={35} />
+              )}
+              <View className="bg-red-500 absolute flex-row justify-center items-center w-[16px] h-[16px] top-0 right-0 rounded-full">
+                <Text className="text-white font-inter-regular text-[11px]">
+                  {cart?.data.item_count}
+                </Text>
+              </View>
+            </Pressable>
+          }
+        />
         <ScrollView className="pb-4">
-          <MainHeader
-            left={<Back onPress={() => router.back()} width={35} height={35} />}
-            header={"Product Details"}
-            right={
-              <Pressable
-                onPress={() => router.push("/myCart")}
-                className="relative"
-              >
-                {loadingCart ? (
-                  <ActivityIndicator size={"small"} />
-                ) : (
-                  <Cart width={35} height={35} />
-                )}
-                <View className="bg-red-500 absolute flex-row justify-center items-center w-[16px] h-[16px] top-0 right-0 rounded-full">
-                  <Text className="text-white font-inter-regular text-[11px]">
-                    {cart?.data.item_count}
-                  </Text>
-                </View>
-              </Pressable>
-            }
-          />
           <View className=" bg-[#999999] rounded-[12px] mt-3">
             {/* <Product width={352} className="mt-10" /> */}
             <Image
@@ -166,12 +166,12 @@ const productDetails = () => {
           {product?.variations?.length != 0 && (
             <>
               <View className="flex-row items-center justify-center my-4  gap-4 px-10">
-                <Text className="font-montserrat-Medium w-[20%]">Sets</Text>
+                <Text className="font-montserrat-Medium">Sets</Text>
 
-                <View className=" w-[60%] items-center justify-center">
+                <View className=" self-start items-center justify-center">
                   <Pressable
                     onPress={() => setShowOptions((prev) => !prev)}
-                    className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] w-[223px]"
+                    className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] "
                   >
                     <Text className="font-montserrat-Regular text-sm text-center">
                       {selectedOption ? selectedOption : "Choose an option"}
