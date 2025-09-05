@@ -42,6 +42,8 @@ const productDetails = () => {
         quantity: 1,
       }).unwrap();
       if (response.status === 200) {
+        console.log(">>>>respomse", response);
+        
         setRequestResponse({
           status: response.status,
           title: response.message,
@@ -52,9 +54,12 @@ const productDetails = () => {
         return Promise.resolve();
       }
     } catch (error: any) {
+        console.log(">>>>error", error.data);
+
       setRequestResponse({
         status: error.data.status,
         title: error.data.message,
+        message: error.data.message,
         type: "error",
       });
       showAlert();
