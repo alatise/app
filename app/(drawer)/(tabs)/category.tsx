@@ -261,6 +261,13 @@ export default function CategoryScreen() {
           </Text>
 
           <View className="mt-4 pb-[160px]">
+            {products?.products.length === 0 && !isFetching && (
+              <View className="flex items-center justify-center mt-20">
+                <Text className="mt-2 text-black text-sm font-inter-medium">
+                  No products under this category..
+                </Text>
+              </View>
+            )}
             {isFetching && currentPage === 1 ? (
               // Category switched → full loader
               <View className="flex-1 items-center justify-center py-20">
@@ -288,13 +295,10 @@ export default function CategoryScreen() {
               />
             )}
             {isFetching && products!?.products?.length === 0 && (
-              <View
-                style={{ backgroundColor: "red" }}
-                className="absolute top-0 left-0 right-0 bottom-0 bg-red-200 flex items-center justify-center z-10"
-              >
+              <View className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-10">
                 <ActivityIndicator size="large" color="#000" />
                 <Text className="mt-2 text-base font-inter-medium">
-                  Loading products ---...
+                  Loading products...
                 </Text>
               </View>
             )}
