@@ -6,6 +6,7 @@ import { GridProductCard } from "@/components/Products/ProductCard";
 import { Button } from "@/components/Shared/Button";
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useSession } from "@/lib/authCtx";
 import { useProductCtx } from "@/lib/productsCtx";
@@ -24,12 +25,12 @@ import {
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CartScreen() {
   const { data: cart, isLoading: loadingCart } = useGetCartQuery();
 
   const {
+    localCart,
     calculations,
     updateQuantity,
     removeItem,
@@ -40,7 +41,8 @@ export default function CartScreen() {
   const { setCartState } = useProductCtx();
 
   const [performCheckout, { isLoading }] = useCheckOutMutation();
-  const { showAlert, setRequestResponse } = useSession();
+  const { showAlert, setRequestResponse, alertVisible, requestResponse } =
+    useSession();
   const { data: deliveryAddresses, isLoading: gettingAddress } =
     useGetDeliveryAddressQuery();
 
@@ -76,9 +78,12 @@ export default function CartScreen() {
         return Promise.resolve();
       }
     } catch (error: any) {
+      console.log("<<<<<<<eeee", error);
+
       setRequestResponse({
         status: error.data.status,
         title: error.data.message,
+        message: error.data.message,
         type: "error",
       });
       showAlert();
@@ -172,7 +177,7 @@ export default function CartScreen() {
         )}
       </ScrollView>
 
-      {cart?.data.item_count !== 0 && !loadingCart && (
+      {cart?.data.items.length !== 0 && !loadingCart && (
         <Button
           disabled={isLoading || gettingAddress || loadingCart}
           loading={isLoading || gettingAddress || loadingCart}
@@ -182,6 +187,13 @@ export default function CartScreen() {
           textClassName="text-white text-base font-inter-regular "
         />
       )}
+
+      <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        message={requestResponse.message!}
+        type={requestResponse.type!}
+      />
     </TabWrapper>
   );
 }

@@ -108,7 +108,7 @@ export default function ProfileScreen() {
           <SettingsCard
             onPress={() => router.push("/(deliveryAddress)/deliveryAddress")}
             left={<HomeIcon />}
-            title="Saved Addresses"
+            title=" Saved Addresses"
           />
         </View>
       </View>

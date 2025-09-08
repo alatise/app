@@ -85,7 +85,7 @@ const BottomMenu = ({ state, navigation, descriptors }: Props) => {
                   return isFocused ? IMAGES.wishList : IMAGES.heart;
                 case "MyCart":
                   return isFocused ? IMAGES.cartActive : IMAGES.mycart;
-                case "Category":
+                case "Customise":
                   return isFocused ? IMAGES.CategoryActive : IMAGES.Category;
                 case "Profile":
                   return isFocused ? IMAGES.profileActive : IMAGES.user2;

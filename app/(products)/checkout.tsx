@@ -3,6 +3,7 @@ import Delivery from "@/assets/images/iconsvg/delivery.svg";
 import { Button } from "@/components/Shared/Button";
 import MainHeader from "@/components/Shared/MainHeader";
 import TabWrapper from "@/components/Shared/TabWrapper";
+import { CustomAlert } from "@/constants/toastConfig";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductCtx } from "@/lib/productsCtx";
 import { useGetProfileQuery } from "@/services/auth";
@@ -59,6 +60,18 @@ const checkout = () => {
     };
   });
 
+  console.log(">>>>>>>>line_items", line_items);
+
+  console.log(">>>>>>>>line_items -- 22", {
+    idempotency_key: uuid.v4(),
+    order: {
+      location_id: "LQ9TND1H83BK3",
+      customerId: data?.data.email,
+      reference_id: uuid.v4(),
+      line_items,
+    },
+  });
+
   const checkoutPaymentLink = async () => {
     setIsLoading(true);
 
@@ -82,8 +95,8 @@ const checkout = () => {
           }
         )
         .then((res) => {
-          setIsLoading(false);
           console.log(">>>>>Square res", res.data);
+          setIsLoading(false);
           setSquareUrl(res.data.payment_link.url);
         });
     } catch (e) {
@@ -216,6 +229,13 @@ const checkout = () => {
           </View>
         )}
       </View>
+
+      {/* <CustomAlert
+        visible={alertVisible}
+        title={requestResponse.message!}
+        message={requestResponse.message!}
+        type={requestResponse.type!}
+      /> */}
     </TabWrapper>
   );
 };
