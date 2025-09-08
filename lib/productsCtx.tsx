@@ -51,21 +51,22 @@ export function useProductCtx() {
 
 export function ProductProvider({ children }: PropsWithChildren) {
   const [selectCategory, setSelectCategory] = useState<Category | null>({
-    id: 0,
+    id: 18,
     name: "All",
     slug: "",
     image_url: "",
     product_count: 0,
     subcategories: [],
   });
-  const [selectCategoryFilter, setSelectCategoryFilter] = useState<Category | null>({
-    id: 0,
-    name: "All",
-    slug: "",
-    image_url: "",
-    product_count: 0,
-    subcategories: [],
-  });
+  const [selectCategoryFilter, setSelectCategoryFilter] =
+    useState<Category | null>({
+      id: 0,
+      name: "All",
+      slug: "",
+      image_url: "",
+      product_count: 0,
+      subcategories: [],
+    });
   const [selectProductCategory, setSelectProductCategory] =
     useState<Category | null>({
       id: 18,
@@ -103,7 +104,7 @@ export function ProductProvider({ children }: PropsWithChildren) {
         cartState,
         setCartState,
         selectProductCategory,
-        setSelectProductCategory
+        setSelectProductCategory,
       }}
     >
       {children}

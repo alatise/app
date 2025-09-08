@@ -9,7 +9,7 @@ import SearchResultsComp from "@/components/Shared/SearchResults";
 import TabWrapper from "@/components/Shared/TabWrapper";
 import { useProductCtx } from "@/lib/productsCtx";
 import { SearchProductsResponse } from "@/lib/type";
-import { useHomeDataQuery } from "@/services/products";
+import { useGetCategoriesQuery } from "@/services/products";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -25,9 +25,10 @@ import {
 export default function HomeScreen() {
   const [showSearch, setShowSearch] = useState(false);
   const navigation = useNavigation();
-  const { data, isLoading } = useHomeDataQuery();
+  // const { data, isLoading } = useHomeDataQuery();
+  const { data, isLoading: isLoading } = useGetCategoriesQuery();
   const { selectCategory, setSelectCategory, setCurrentPage } = useProductCtx();
-  const categories = data?.data?.featured_categories.map((c) => c);
+  const categories = data?.data?.categories.map((c) => c);
 
   // search state
   const [searchState, setSearchState] = useState("");
@@ -142,7 +143,7 @@ export default function HomeScreen() {
               <FlatList
                 showsHorizontalScrollIndicator={false}
                 horizontal
-                data={sortedCategories}
+                data={categories}
                 renderItem={({ item }) => (
                   <CategoryItem
                     setSelectCategory={setSelectCategory!}

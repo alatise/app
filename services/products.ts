@@ -27,10 +27,7 @@ export const productsApi = api.injectEndpoints({
     }),
     getProductsByCategoryId: builder.query<CategoryProducts, ProductParam>({
       query: ({ id, page = 1, per_page = 15 }) => ({
-        url:
-          id === 0
-            ? `/products?page=${page}&per_page=${per_page}`
-            : `/categories/${id}/products?page=${page}&per_page=${per_page}`,
+        url: `/categories/${id}/products?page=${page}&per_page=${per_page}`,
         method: "GET",
       }),
 
@@ -142,5 +139,5 @@ export const {
   useGetProductsQuery,
   useSearchProductsQuery,
   useGetOngoingOrdersQuery,
-  useGetCompleteOrdersQuery
+  useGetCompleteOrdersQuery,
 } = productsApi;
