@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   Text,
   TextInput,
   View,
@@ -25,7 +26,7 @@ export default function HomeScreen() {
   const [showSearch, setShowSearch] = useState(false);
   const navigation = useNavigation();
   const { data, isLoading } = useHomeDataQuery();
-  const { selectCategory, setSelectCategory } = useProductCtx();
+  const { selectCategory, setSelectCategory, setCurrentPage } = useProductCtx();
   const categories = data?.data?.featured_categories.map((c) => c);
 
   // search state
@@ -81,13 +82,24 @@ export default function HomeScreen() {
     <TabWrapper>
       <MainHeader
         left={
-          <Menu
+          <Pressable
             onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-            width={16}
-            height={16}
-          />
+            className=" w-[50px] h-[40px] flex-row items-center justify-start"
+          >
+            <Menu
+              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+              width={16}
+              height={16}
+            />
+          </Pressable>
         }
-        center={showSearch ? SearchComp : <Logo width={62} height={40} />}
+        center={
+          showSearch ? (
+            SearchComp
+          ) : (
+            <Logo onPress={() => setCurrentPage(1)} width={62} height={40} />
+          )
+        }
         right={
           !showSearch ? (
             <Search
@@ -98,7 +110,7 @@ export default function HomeScreen() {
           ) : (
             <Close
               onPress={() => {
-                setSearchState("")
+                setSearchState("");
                 setShowSearch(false);
               }}
             />

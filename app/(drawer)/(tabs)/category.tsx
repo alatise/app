@@ -78,8 +78,8 @@ export default function CategoryScreen() {
   };
 
   const {
-    selectCategory,
-    setSelectCategory,
+    selectCategoryFilter,
+    setSelectCategoryFilter,
     currentPage,
     setCurrentPage,
     hasMore,
@@ -91,7 +91,7 @@ export default function CategoryScreen() {
     isLoading: loadingProducts,
     isFetching,
   } = useGetProductsByCategoryIdQuery({
-    id: selectCategory!?.id === 0 ? 18 : selectCategory?.id,
+    id: selectCategoryFilter!?.id === 0 ? 18 : selectCategoryFilter?.id,
     page: currentPage,
     per_page: 16,
   });
@@ -114,7 +114,7 @@ export default function CategoryScreen() {
     lastLoadedPageRef.current = 1; // reset pagination tracker
     highestViewedPageRef.current = 1; // reset viewed page tracker
     setIsLoadingMore(false);
-  }, [selectCategory!?.id, setCurrentPage]);
+  }, [selectCategoryFilter!?.id, setCurrentPage]);
 
   const loadMore = useCallback(() => {
     if (
@@ -245,8 +245,8 @@ export default function CategoryScreen() {
                 data={categories}
                 renderItem={({ item }) => (
                   <CategoryItem
-                    setSelectCategory={setSelectCategory!}
-                    selectCategory={selectCategory!}
+                    setSelectCategory={setSelectCategoryFilter!}
+                    selectCategory={selectCategoryFilter!}
                     item={item}
                   />
                 )}
@@ -260,7 +260,7 @@ export default function CategoryScreen() {
             Discover latest collection{" "}
           </Text>
 
-          <View className="mt-4">
+          <View className="mt-4 pb-[160px]">
             {isFetching && currentPage === 1 ? (
               // Category switched → full loader
               <View className="flex-1 items-center justify-center py-20">
@@ -275,7 +275,7 @@ export default function CategoryScreen() {
                 renderItem={({ item }) => <ProductCard {...item} />}
                 columnWrapperStyle={{
                   justifyContent: "space-between",
-                  marginBottom: 10,
+                  marginBottom: 20,
                 }}
                 //@ts-expect-error
                 onViewableItemsChanged={onViewableItemsChanged}

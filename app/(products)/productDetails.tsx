@@ -27,6 +27,7 @@ const productDetails = () => {
   const { name, price, image_url, description, id } = product!;
   const { wishlist, toggleWishlist } = useWishlist();
   const inWishlist = wishlist.some((p) => p.id === id);
+  const [selectedOption, setSelectedOption] = useState<string | null>("");
 
   const { showAlert, setRequestResponse, alertVisible, requestResponse } =
     useSession();
@@ -36,14 +37,22 @@ const productDetails = () => {
     useAddToCartMutation();
 
   const addToCart = async () => {
+    if (!selectedOption) {
+      showAlert()
+      setRequestResponse({
+        status: 400,
+        title: "Please select a set option",
+        message: "Please select a set option before adding item to cart",
+        type: "error",
+      });
+      return;
+    }
     try {
       const response = await performAddToCart({
         product_id: id,
         quantity: 1,
       }).unwrap();
       if (response.status === 200) {
-        console.log(">>>>respomse", response);
-        
         setRequestResponse({
           status: response.status,
           title: response.message,
@@ -54,8 +63,6 @@ const productDetails = () => {
         return Promise.resolve();
       }
     } catch (error: any) {
-        console.log(">>>>error", error.data);
-
       setRequestResponse({
         status: error.data.status,
         title: error.data.message,
@@ -76,7 +83,6 @@ const productDetails = () => {
     product!?.variations?.map((v) => v.attributes.attribute_pa_sets);
 
   const [showOptions, setShowOptions] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string | null>("");
 
   const handleSelect = (option: string) => {
     setSelectedOption(option);
@@ -123,6 +129,8 @@ const productDetails = () => {
     },
     variations: product?.variations!,
   };
+
+  console.log(">>>>product?.variations?.length", product?.variations?.length);
 
   return (
     <TabWrapper>
@@ -175,7 +183,7 @@ const productDetails = () => {
 
                 <View className=" self-start items-center justify-center">
                   <Pressable
-                    onPress={() => setShowOptions((prev) => !prev)}
+                    // onPress={() => setShowOptions((prev) => !prev)}
                     className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] "
                   >
                     <Text className="font-montserrat-Regular text-sm text-center">
@@ -186,6 +194,27 @@ const productDetails = () => {
               </View>
 
               <View className="flex-row items-center justify-center my-4  gap-4 px-10">
+                {setOptions?.map((option, index) => {
+                  const isSelected = selectedOption === option;
+                  return (
+                    <Pressable
+                      onPress={() => handleSelect(option)}
+                      key={index}
+                      className="flex-row gap-2"
+                    >
+                      <View className="flex-row h-5 w-5 items-center gap-3 justify-center border-[1px] border-black  rounded-full">
+                        <View
+                          className={` h-3 w-3 rounded-full ${isSelected ? "bg-black" : "bg-white"}`}
+                        />
+                      </View>
+
+                      <Text> {option}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {/* <View className="flex-row items-center justify-center my-4  gap-4 px-10">
                 <View className="w-[20%]" />
 
                 {showOptions && (
@@ -212,7 +241,7 @@ const productDetails = () => {
                     })}
                   </View>
                 )}
-              </View>
+              </View> */}
             </>
           )}
 

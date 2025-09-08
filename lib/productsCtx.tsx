@@ -28,8 +28,10 @@ export const ProductContext = createContext<
       product: Product | null;
       setProduct: (product: Product) => void;
       //   for category screen
-      setSelectNewCategory: (category: Category) => void;
-      selectNewCategory: Category | null;
+      setSelectCategoryFilter: (category: Category) => void;
+      selectCategoryFilter: Category | null;
+      setSelectProductCategory: (category: Category) => void;
+      selectProductCategory: Category | null;
       setSubCategory: (subcategory: Subcategory) => void;
       cartState: FinalCartData | null;
       setCartState: (finalCartData: FinalCartData) => void;
@@ -56,7 +58,7 @@ export function ProductProvider({ children }: PropsWithChildren) {
     product_count: 0,
     subcategories: [],
   });
-  const [selectNewCategory, setSelectNewCategory] = useState<Category | null>({
+  const [selectCategoryFilter, setSelectCategoryFilter] = useState<Category | null>({
     id: 0,
     name: "All",
     slug: "",
@@ -64,6 +66,15 @@ export function ProductProvider({ children }: PropsWithChildren) {
     product_count: 0,
     subcategories: [],
   });
+  const [selectProductCategory, setSelectProductCategory] =
+    useState<Category | null>({
+      id: 18,
+      name: "All",
+      slug: "grillz",
+      image_url: "",
+      product_count: 0,
+      subcategories: [],
+    });
   const [subCategory, setSubCategory] = useState<Subcategory | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -86,11 +97,13 @@ export function ProductProvider({ children }: PropsWithChildren) {
         setHasMore,
         product,
         setProduct,
-        setSelectNewCategory,
-        selectNewCategory,
+        setSelectCategoryFilter,
+        selectCategoryFilter,
         setSubCategory,
         cartState,
         setCartState,
+        selectProductCategory,
+        setSelectProductCategory
       }}
     >
       {children}

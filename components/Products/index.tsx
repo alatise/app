@@ -152,6 +152,14 @@ const ProductsView = () => {
 
   return (
     <View className="mt-4 pb-[140px]">
+      {products?.length === 0 && !isFetching && (
+        <View className="flex items-center justify-center mt-20">
+          <Text className="mt-2 text-black text-sm font-inter-medium">
+            No products under this category..
+          </Text>
+        </View>
+      )}
+
       {isFetching && currentPage === 1 ? (
         <View className="flex items-center justify-center mt-20">
           <ActivityIndicator size="small" color="#B29954" />

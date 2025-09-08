@@ -37,9 +37,9 @@ const DeliveryCard = ({ address, title, type }: DeliveryCardProps) => {
           <Text className="font-montserrat-Regular text-sm">{address}</Text>
         </View>
       </View>
-      <View className="flex-row h-5 w-5 items-center gap-3 justify-center border-[1px] border-black p-1 rounded-full">
+      {/* <View className="flex-row h-5 w-5 items-center gap-3 justify-center border-[1px] border-black p-1 rounded-full">
         <View className="bg-black h-3 w-3 rounded-full" />
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -89,14 +89,14 @@ const deliveryAddress = () => {
           </TouchableOpacity>
         </ScrollView>
 
-        <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t py-4">
+        {/* <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t py-4">
           <Button
             onPress={() => {}}
             children="Save Address"
             className="bg-black rounded-[8px] px-4 py-4  w-full"
             textClassName="text-white font-montserrat-Medium text-base"
           />
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );

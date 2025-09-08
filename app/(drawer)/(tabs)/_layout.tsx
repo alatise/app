@@ -43,7 +43,7 @@ export default function TabLayout() {
         name="category"
         options={{
           title: "Category",
-          tabBarLabel: "Category",
+          tabBarLabel: "Customise",
         }}
       />
       <Tabs.Screen

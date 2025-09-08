@@ -1,10 +1,8 @@
 import Add from "@/assets/images/iconsvg/add.svg";
 import Arrow2 from "@/assets/images/iconsvg/arrowright2.svg";
 import Arrow from "@/assets/images/iconsvg/goldenarrow.svg";
-import Star from "@/assets/images/iconsvg/star.svg";
 import Substract from "@/assets/images/iconsvg/substract.svg";
 import Trash from "@/assets/images/iconsvg/trash.svg";
-import NoStar from "@/assets/images/iconsvg/unstar.svg";
 import { useLocalCart } from "@/hooks/useLocalCart";
 import { useProductCtx } from "@/lib/productsCtx";
 
@@ -227,7 +225,10 @@ export const NewProductGridCard = ({ ...item }: Product) => {
         <Text className="font-montserrat-Regular">{name}</Text>
 
         <View className="flex-row justify-between items-center">
-          <Text className=" font-montserrat-Semibold">£{price}</Text>
+          <Text className=" font-montserrat-Semibold">
+            {" "}
+            £ {Number(price).toLocaleString("GBP")}
+          </Text>
           <Arrow2 />
         </View>
       </View>
@@ -259,11 +260,16 @@ export const NewProductListCard = ({ ...item }: Product) => {
       </View>
 
       <View className="pt-4 w-[60%]">
-        <Text className="font-montserrat-Regular">{name}</Text>
+        <View className="h-10">
+          <Text className="font-montserrat-Regular">{name}</Text>
+        </View>
 
-        <Text className="font-montserrat-Semibold pt-4">£ {price}</Text>
+        <Text className="font-montserrat-Semibold pt-2">
+          {" "}
+          £ {Number(price).toLocaleString("GBP")}
+        </Text>
 
-        <View className="flex-row justify-between items-center pt-8">
+        <View className="flex-row justify-between items-center pt-6">
           {/* <Text className=" font-montserrat-Regular text-red-600">40% Off</Text> */}
           <Pressable
             onPress={(e) => {

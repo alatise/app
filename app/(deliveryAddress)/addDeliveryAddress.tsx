@@ -15,11 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
 const AddDeliveryAddress = () => {
-  const categories = ["Home", "Work", "Other"];
-
-  const [type, setType] = useState("Home");
-
-  const { showAlert, requestResponse, alertVisible, setRequestResponse } = useSession();
+const { showAlert, requestResponse, alertVisible, setRequestResponse } = useSession();
 
   const schema = z.object({
     zip: z.string().min(6, "Zip code is require"),
@@ -186,7 +182,7 @@ const AddDeliveryAddress = () => {
         visible={alertVisible}
         title={requestResponse.message!}
         message={requestResponse.message!}
-        type="error"
+        type={requestResponse.type!}
       />
     </SafeAreaView>
   );

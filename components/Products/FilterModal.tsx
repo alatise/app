@@ -77,8 +77,8 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
   ];
 
   const {
-    selectCategory,
-    setSelectCategory,
+    selectProductCategory,
+    setSelectProductCategory,
     currentPage,
     setCurrentPage,
     hasMore,
@@ -122,8 +122,8 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
             data={sortedCategories}
             renderItem={({ item }) => (
               <CategoryItem
-                setSelectCategory={setSelectCategory!}
-                selectCategory={selectCategory!}
+                setSelectCategory={setSelectProductCategory!}
+                selectCategory={selectProductCategory!}
                 item={item}
               />
             )}
@@ -191,7 +191,7 @@ const FilterModal = ({ filters, setFilters, openFilterModal }: prop) => {
                 ...filters,
                 min_price: minPrice,
                 max_price: maxPrice,
-                category: selectCategory?.slug!,
+                category: selectProductCategory?.slug!,
               });
             }}
             children="Apply"

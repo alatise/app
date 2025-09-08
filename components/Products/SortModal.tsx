@@ -59,7 +59,7 @@ const SortModal = ({ filters, setFilters, openSortModal }: prop) => {
     setHasMore,
   } = useProductCtx();
 
-  const orderBys = [
+  const order = [
     {
       name: "Ascending",
       path: "ASC",
@@ -70,7 +70,7 @@ const SortModal = ({ filters, setFilters, openSortModal }: prop) => {
     },
   ];
 
-  const order = [
+  const orderBys = [
     {
       name: "Rating",
       path: "rating",

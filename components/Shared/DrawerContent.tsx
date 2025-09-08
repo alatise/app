@@ -5,7 +5,6 @@ import { IMAGES } from "@/constants/Images";
 import { useSession } from "@/lib/authCtx";
 import { useGetProfileQuery } from "@/services/auth";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
-import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 
@@ -13,16 +12,23 @@ export default function CustomDrawerContent(props: any) {
   const { session, isSessionLoading, setSession } = useSession();
   const { data, isLoading } = useGetProfileQuery();
 
+  const { navigation } = props;
+
   const drawerItems = [
     {
       icon: IMAGES.home,
       name: "Home",
-      navigate: "index",
+      navigate: "home",
     },
     {
       icon: IMAGES.producta,
       name: "Products",
       navigate: "products",
+    },
+    {
+      icon: IMAGES.producta,
+      name: "Categories",
+      navigate: "categories",
     },
 
     // {
@@ -58,8 +64,6 @@ export default function CustomDrawerContent(props: any) {
     },
   ];
 
-  const navigation = useNavigation();
-
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
       {/* Profile Header */}
@@ -87,17 +91,18 @@ export default function CustomDrawerContent(props: any) {
           <Pressable
             key={idx}
             onPress={() => {
-              // navigation.dispatch(DrawerActions.closeDrawer());
+              navigation.closeDrawer();
 
               if (item.navigate === "logout") {
-                console.log(">>>>>clicked on logout");
                 router.replace("/(auth)/login");
                 setSession(null!);
               }
 
-              if (item.navigate === "index") {
-                return;
+              if (item.navigate === "home") {
+                navigation.closeDrawer();
+                router.replace("/(drawer)/(tabs)");
               }
+
               if (item.navigate === "wishlist") {
                 router.push("/(drawer)/(tabs)/wishlist");
               }
@@ -110,7 +115,9 @@ export default function CustomDrawerContent(props: any) {
               if (item.navigate === "profile") {
                 router.push("/(drawer)/(tabs)/profile");
               }
-
+              if (item.navigate === "categories") {
+                router.push("/(drawer)/(tabs)/category");
+              }
               if (item.navigate === "products") {
                 router.push("/(products)/products");
               }
@@ -137,12 +144,7 @@ export default function CustomDrawerContent(props: any) {
       </View>
 
       {/* Logout */}
-      <Pressable
-        onPress={() => {
-          console.log("Logout");
-        }}
-        className="px-2 mt-10 border-t-[1px] border-[#ccc] pt-3"
-      >
+      <Pressable className="px-2 mt-10 border-t-[1px] border-[#ccc] pt-3">
         <Text className="text- text-base font-inter-medium">Kabils Grillz</Text>
         <Text className="text-[13px] font-inter-regular">App Version 1.0</Text>
       </Pressable>

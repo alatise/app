@@ -110,23 +110,24 @@ const Products = () => {
   }
 
   const {
-    selectCategory,
-    setSelectCategory,
+    selectProductCategory,
     currentPage,
     setCurrentPage,
     hasMore,
     setHasMore,
   } = useProductCtx();
 
+  console.log(">>>>filters.category || selectProductCategory?.slug,", filters);
+  
+
   const {
     data: categoryProducts,
     isLoading: loadingProducts,
     isFetching,
   } = useGetProductsQuery({
-    id: selectCategory!?.id,
     page: currentPage,
     per_page: 16,
-    category: filters.category,
+    category:  selectProductCategory?.slug ?? filters.category ,
     max_price: filters.max_price,
     min_price: filters.min_price,
     order: filters.order,
@@ -151,7 +152,7 @@ const Products = () => {
     lastLoadedPageRef.current = 1; // reset pagination tracker
     highestViewedPageRef.current = 1; // reset viewed page tracker
     setIsLoadingMore(false);
-  }, [selectCategory!?.id, setCurrentPage]);
+  }, [selectProductCategory!?.id, setCurrentPage]);
 
   const loadMore = useCallback(() => {
     if (
