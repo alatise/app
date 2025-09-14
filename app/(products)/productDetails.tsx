@@ -11,7 +11,9 @@ import { Product } from "@/lib/type";
 import { useWishlist } from "@/lib/wishlistCtx";
 import { useAddToCartMutation, useGetCartQuery } from "@/services/cart";
 import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -28,6 +30,8 @@ const productDetails = () => {
   const { wishlist, toggleWishlist } = useWishlist();
   const inWishlist = wishlist.some((p) => p.id === id);
   const [selectedOption, setSelectedOption] = useState<string | null>("");
+  const [quantity, setQuantity] = useState(1);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   const { showAlert, setRequestResponse, alertVisible, requestResponse } =
     useSession();
@@ -38,7 +42,7 @@ const productDetails = () => {
 
   const addToCart = async () => {
     if (!selectedOption) {
-      showAlert()
+      showAlert();
       setRequestResponse({
         status: 400,
         title: "Please select a set option",
@@ -50,7 +54,7 @@ const productDetails = () => {
     try {
       const response = await performAddToCart({
         product_id: id,
-        quantity: 1,
+        quantity: quantity,
       }).unwrap();
       if (response.status === 200) {
         setRequestResponse({
@@ -74,6 +78,37 @@ const productDetails = () => {
     }
   };
 
+  const buyNow = async () => {
+    try {
+      setBuyingNow(true);
+      const token = await SecureStore.getItemAsync("session");
+      const body: any = {
+        product_id: product!.id,
+        quantity: quantity,
+        variation_id: selectVariation?.variation_id ?? undefined,
+      };
+      const response = await axios.post(
+        "https://kabilsgrillz.com/wp-json/mobile-app/v1/buy-now",
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const paymentLink = response.data?.data?.payment_link;
+      if (paymentLink) {
+        router.push({ pathname: "/(payment)/buyNow", params: { url: paymentLink } });
+      }
+    } catch (error) {
+      console.log("Buy Now error", error);
+    } finally {
+      setBuyingNow(false);
+    }
+  };
+
   const itemExistInCart = () => {
     return cart?.data.items.some((c) => c.product_id === id);
   };
@@ -82,11 +117,8 @@ const productDetails = () => {
     product?.variations &&
     product!?.variations?.map((v) => v.attributes.attribute_pa_sets);
 
-  const [showOptions, setShowOptions] = useState(false);
-
   const handleSelect = (option: string) => {
     setSelectedOption(option);
-    setShowOptions(false); // hide dropdown after selection
   };
 
   const selectVariation =
@@ -94,6 +126,12 @@ const productDetails = () => {
     product?.variations.find(
       (v) => v.attributes.attribute_pa_sets === selectedOption
     );
+
+  useEffect(() => {
+    if (!selectedOption && setOptions && setOptions.length > 0) {
+      setSelectedOption(setOptions[0]!);
+    }
+  }, [product?.id]);
 
   useEffect(() => {
     if (selectedOption) {
@@ -157,7 +195,7 @@ const productDetails = () => {
           }
         />
         <ScrollView className="pb-4">
-          <View className=" bg-[#999999] rounded-[12px] mt-3">
+          <View className=" bg-black rounded-[12px] mt-3">
             {/* <Product width={352} className="mt-10" /> */}
             <Image
               source={{
@@ -171,109 +209,110 @@ const productDetails = () => {
 
           <Text className="font-montserrat-Medium text-xl pt-5">{name}</Text>
 
-          <Text className="font-montserrat-Bold text-2xl pt-3">
-            {" "}
-            £ {Number(price).toLocaleString("GBP")}
-          </Text>
+          <View className="flex-row items-center justify-between pt-3">
+            <Text className="font-montserrat-Bold text-2xl">
+              £ {Number(price).toLocaleString("GBP")}
+            </Text>
+            <Pressable
+              onPress={(e) => {
+                toggleWishlist(product!);
+              }}
+              className="bg-[#E8E8E8] w-[46px] h-[40px] flex-row justify-center items-center rounded-[8px]"
+            >
+              <AntDesign
+                name="heart"
+                size={18}
+                color={inWishlist ? "#CC0D39" : "#C6B4B8"}
+              />
+            </Pressable>
+          </View>
 
           {product?.variations?.length != 0 && (
-            <>
-              <View className="flex-row items-center justify-center my-4  gap-4 px-10">
-                <Text className="font-montserrat-Medium">Sets</Text>
-
-                <View className=" self-start items-center justify-center">
-                  <Pressable
-                    // onPress={() => setShowOptions((prev) => !prev)}
-                    className="bg-[#F6F6F6] px-4 py-3 rounded-[8px] "
-                  >
-                    <Text className="font-montserrat-Regular text-sm text-center">
-                      {selectedOption ? selectedOption : "Choose an option"}
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-
-              <View className="flex-row items-center justify-center my-4  gap-4 px-10">
+            <View className="my-4 px-0">
+              <Text className="font-montserrat-Medium mb-2">Sets</Text>
+              <View className="flex-row flex-wrap justify-between">
                 {setOptions?.map((option, index) => {
                   const isSelected = selectedOption === option;
                   return (
                     <Pressable
-                      onPress={() => handleSelect(option)}
                       key={index}
-                      className="flex-row gap-2"
+                      onPress={() => handleSelect(option)}
+                      className={`mb-3 rounded-[10px] px-4 py-3 flex-row items-center ${
+                        isSelected ? "bg-black" : "bg-[#F6F6F6]"
+                      }`}
+                      style={{ width: "48%" }}
                     >
-                      <View className="flex-row h-5 w-5 items-center gap-3 justify-center border-[1px] border-black  rounded-full">
-                        <View
-                          className={` h-3 w-3 rounded-full ${isSelected ? "bg-black" : "bg-white"}`}
-                        />
-                      </View>
-
-                      <Text> {option}</Text>
+                      <View
+                        className={`w-[16px] h-[16px] rounded-full mr-2 border ${
+                          isSelected
+                            ? "bg-white border-white"
+                            : "border-[#BDBDBD] bg-transparent"
+                        }`}
+                      />
+                      <Text
+                        className={`text-sm font-montserrat-Regular ${
+                          isSelected ? "text-white" : "text-[#222]"
+                        }`}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ flexShrink: 1, minWidth: 0 }}
+                      >
+                        {option}
+                      </Text>
                     </Pressable>
                   );
                 })}
               </View>
-
-              {/* <View className="flex-row items-center justify-center my-4  gap-4 px-10">
-                <View className="w-[20%]" />
-
-                {showOptions && (
-                  <View className="bg-white mt-2 rounded-[8px] border border-gray-300 w-[60%]">
-                    {setOptions?.map((option, index) => {
-                      const isSelected = selectedOption === option;
-                      return (
-                        <Pressable
-                          key={index}
-                          onPress={() => handleSelect(option)}
-                          className={`px-4 py-3 rounded-[8px] ${
-                            isSelected ? "bg-secondary" : "bg-white"
-                          }`}
-                        >
-                          <Text
-                            className={`text-sm ${
-                              isSelected ? "text-white font-bold" : "text-black"
-                            }`}
-                          >
-                            {option}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                )}
-              </View> */}
-            </>
+            </View>
           )}
 
-          <Text className="font-montserrat-Semibold pt-1">Description:</Text>
+          <View className="flex-row items-center justify-between pt-4">
+            <Text className="font-montserrat-Medium">Quantity</Text>
+            <View className="flex-row items-center">
+              <Pressable
+                onPress={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="w-9 h-9 rounded-[8px] bg-[#F2F2F2] items-center justify-center mr-3"
+              >
+                <Text className="text-lg">-</Text>
+              </Pressable>
+              <Text className="w-10 text-center font-montserrat-Medium text-base">
+                {quantity}
+              </Text>
+              <Pressable
+                onPress={() => setQuantity((q) => q + 1)}
+                className="w-9 h-9 rounded-[8px] bg-[#F2F2F2] items-center justify-center ml-3"
+              >
+                <Text className="text-lg">+</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <Text className="font-montserrat-Semibold pt-4">Description:</Text>
           <Text className="pt-3 text-[#797777] font-montserrat-Regular text-sm tracking-wider">
             {description}
           </Text>
         </ScrollView>
 
-        <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t pr-4 py-4">
-          <Pressable
-            onPress={(e) => {
-              toggleWishlist(product!);
-            }}
-            className="bg-[#E8E8E8] w-[76px] h-[55px] flex-row justify-center items-center rounded-[8px]"
-          >
-            <AntDesign
-              name="heart"
-              size={18}
-              color={inWishlist ? "#CC0D39" : "#C6B4B8"}
+        <View className="flex-row items-center gap-3 border-[#D9D9D9] border-t py-4">
+          <View className="flex-1 flex-row gap-2 items-stretch">
+            <Button
+              disabled={addingToCart || itemExistInCart()!}
+              loading={addingToCart}
+              cart
+              onPress={addToCart}
+              children={itemExistInCart() ? "Added" : "Add To Cart"}
+              className="bg-secondary rounded-[8px] h-[55px] flex-1"
+              textClassName="text-white font-montserrat-Medium text-base"
             />
-          </Pressable>
-
-          <Button
-            disabled={addingToCart || itemExistInCart()!}
-            loading={addingToCart}
-            cart
-            onPress={addToCart}
-            children={itemExistInCart() ? "Added" : "Add To Cart"}
-            className="bg-secondary rounded-[8px] px-4 py-5  w-[75%]"
-            textClassName="text-white font-montserrat-Medium text-base"
-          />
+            <Button
+              onPress={buyNow}
+              disabled={buyingNow}
+              loading={buyingNow}
+              children="Buy Now"
+              className="bg-black rounded-[8px] h-[55px] flex-1"
+              textClassName="text-white font-montserrat-Medium text-base"
+            />
+          </View>
         </View>
       </View>
 

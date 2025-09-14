@@ -70,7 +70,7 @@ export const GridProductCard = ({
     >
       {/* <Product1 width={105} height={103} /> */}
 
-      <View className="bg-[#999999] rounded-[12px]">
+      <View className="bg-[#000000] rounded-[12px]">
         <Image
           source={{ uri: image_url }}
           width={105}
@@ -161,7 +161,7 @@ const ProductCard = ({ ...item }: Product) => {
         </Pressable>
       </View>
 
-      <View className="bg-[#999999] rounded-[12px]">
+      <View className="bg-[#000000] rounded-[12px]">
         <Image
           source={{ uri: image_url }}
           width={164}
@@ -212,7 +212,7 @@ export const NewProductGridCard = ({ ...item }: Product) => {
             />
           </Pressable>
         </View>
-        <View className="bg-[#999999] h-[118px] w-full rounded-[5px]">
+        <View className="bg-[#000000] h-[118px] w-full rounded-[5px]">
           <Image
             source={{ uri: image_url }}
             height={118}
@@ -250,7 +250,7 @@ export const NewProductListCard = ({ ...item }: Product) => {
       className=" flex-row gap-5 mt-6 border-b-[0.2px] pb-3 border-[#e5e5e5]"
     >
       <View className="bg-[#D9D9D9] flex-row justify-center items-center rounded-[8px] h-[120px] w-[120px] px-2">
-        <View className="bg-[#999999] h-[90px] w-full rounded-[5px]">
+        <View className="bg-[#000000] h-[90px] w-full rounded-[5px]">
           <Image
             source={{ uri: image_url }}
             height={90}

@@ -2,17 +2,20 @@ import Close from "@/assets/images/iconsvg/close1.svg";
 import Logo from "@/assets/images/iconsvg/logo.svg";
 import Menu from "@/assets/images/iconsvg/menu.svg";
 import Search from "@/assets/images/iconsvg/search.svg";
-import Products from "@/components/Products";
+import ProductCard from "@/components/Products/ProductCard";
 import { CategoryItem } from "@/components/Shared/CategoryItem";
 import MainHeader from "@/components/Shared/MainHeader";
 import SearchResultsComp from "@/components/Shared/SearchResults";
 import TabWrapper from "@/components/Shared/TabWrapper";
 import { useProductCtx } from "@/lib/productsCtx";
 import { SearchProductsResponse } from "@/lib/type";
-import { useHomeDataQuery } from "@/services/products";
+import {
+  useGetCategoriesQuery,
+  useGetProductsByCategoryIdQuery,
+} from "@/services/products";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -25,11 +28,45 @@ import {
 export default function HomeScreen() {
   const [showSearch, setShowSearch] = useState(false);
   const navigation = useNavigation();
-  const { data, isLoading } = useHomeDataQuery();
-  const { selectCategory, setSelectCategory, setCurrentPage } = useProductCtx();
-  const categories = data?.data?.featured_categories.map((c) => c);
+  const { data, isLoading } = useGetCategoriesQuery();
 
-  // search state
+  // Product context with pagination
+  const {
+    selectCategory,
+    setSelectCategory,
+    currentPage,
+    setCurrentPage,
+    hasMore,
+    setHasMore,
+  } = useProductCtx();
+
+  // Pagination refs
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const lastLoadedPageRef = useRef(1);
+  const highestViewedPageRef = useRef(1);
+
+  const viewabilityConfig = {
+    itemVisiblePercentThreshold: 50,
+    minimumViewTime: 300,
+  };
+
+  // Categories data
+  const categories = data?.data?.categories.map((c) => c);
+
+  // Fetch products based on selected category
+  const {
+    data: categoryProducts,
+    isLoading: loadingProducts,
+    isFetching,
+  } = useGetProductsByCategoryIdQuery({
+    id: selectCategory?.id === 0 ? 18 : selectCategory?.id, // Use 18 for "All" category or adjust as needed
+    page: currentPage,
+    per_page: 16,
+  });
+
+  const products = categoryProducts?.data;
+
+  // Search state
   const [searchState, setSearchState] = useState("");
   const [searchResults, setSearchResult] = useState<SearchProductsResponse>();
   const [searching, setSearching] = useState(false);
@@ -54,6 +91,86 @@ export default function HomeScreen() {
   useEffect(() => {
     getResults();
   }, [searchState]);
+
+  // Handle pagination when products data changes
+  useEffect(() => {
+    if (categoryProducts) {
+      const isLastPage = currentPage >= products!.pagination.total_pages;
+      setHasMore(!isLastPage);
+      setIsLoadingMore(false);
+      lastLoadedPageRef.current = currentPage;
+    }
+  }, [products, currentPage, setHasMore]);
+
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+    lastLoadedPageRef.current = 1;
+    highestViewedPageRef.current = 1;
+    setIsLoadingMore(false);
+  }, [selectCategory?.id, setCurrentPage]);
+
+  // Load more products
+  const loadMore = useCallback(() => {
+    if (
+      isLoadingMore ||
+      loadingProducts ||
+      isFetching ||
+      !hasMore ||
+      !products
+    ) {
+      return;
+    }
+
+    console.log("Loading more - Current page:", currentPage);
+    setIsLoadingMore(true);
+    setCurrentPage(currentPage + 1);
+  }, [
+    isLoadingMore,
+    loadingProducts,
+    isFetching,
+    hasMore,
+    products,
+    currentPage,
+    setCurrentPage,
+  ]);
+
+  // Footer for loading indicator
+  const renderFooter = () => {
+    if (!isFetching && !isLoadingMore) return null;
+    return (
+      <View className="py-4 items-center">
+        <ActivityIndicator size="small" color="#000" />
+      </View>
+    );
+  };
+
+  // Handle viewable items for infinite scroll
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: any[] }) => {
+      if (!hasMore || isLoadingMore || !viewableItems.length) return;
+
+      const lastVisibleIndex =
+        viewableItems[viewableItems.length - 1]?.index ?? 0;
+
+      const pageOfLastVisibleItem = Math.floor(lastVisibleIndex / 15) + 1;
+
+      if (pageOfLastVisibleItem > highestViewedPageRef.current) {
+        highestViewedPageRef.current = pageOfLastVisibleItem;
+      }
+
+      const itemPositionInPage = lastVisibleIndex % 15;
+      const shouldLoadMore =
+        pageOfLastVisibleItem >= lastLoadedPageRef.current &&
+        itemPositionInPage >= 12 &&
+        pageOfLastVisibleItem >= currentPage - 1;
+
+      if (shouldLoadMore) {
+        loadMore();
+      }
+    },
+    [hasMore, isLoadingMore, loadMore, currentPage]
+  );
 
   const sortedCategories = [
     {
@@ -128,7 +245,7 @@ export default function HomeScreen() {
         <>
           <View className="mt-2">
             <Text className="font-inter-semibold text-lg pt-4">
-              Explore Products
+              Featured & Hot 🔥
             </Text>
 
             {isLoading ? (
@@ -156,7 +273,46 @@ export default function HomeScreen() {
             )}
           </View>
 
-          <Products />
+          {/* Products Section */}
+          <Text className="font-inter-semibold text-lg pt-6">
+            {`Discover ${selectCategory?.name || "latest collection"}`}
+          </Text>
+
+          <View className="mt-4 flex-1">
+            {isFetching && currentPage === 1 ? (
+              // Category switched → full loader
+              <View className="flex-1 items-center justify-center py-20">
+                <ActivityIndicator size="large" />
+                <Text className="mt-2">Loading products...</Text>
+              </View>
+            ) : (
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={products?.products ?? []}
+                numColumns={2}
+                renderItem={({ item }) => <ProductCard {...item} />}
+                columnWrapperStyle={{
+                  justifyContent: "space-between",
+                  marginBottom: 10,
+                }}
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={viewabilityConfig}
+                ListFooterComponent={renderFooter}
+                keyExtractor={(item, index) => `${item.id}+${index}`}
+                removeClippedSubviews={true}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+              />
+            )}
+            {isFetching && products?.products?.length === 0 && (
+              <View className="absolute top-0 left-0 right-0 bottom-0 bg-red-200 flex items-center justify-center z-10">
+                <ActivityIndicator size="large" color="#000" />
+                <Text className="mt-2 text-base font-inter-medium">
+                  Loading products...
+                </Text>
+              </View>
+            )}
+          </View>
         </>
       )}
     </TabWrapper>

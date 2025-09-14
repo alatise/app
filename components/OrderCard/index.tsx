@@ -3,12 +3,21 @@ import React from "react";
 import { Image, Text, View } from "react-native";
 
 const OrderCard = (order: Order) => {
+  const normalizedStatus = (order?.status || "").toLowerCase();
+  const isRed = ["refunded", "cancelled", "failed"].includes(normalizedStatus);
+  const isGreen = [
+    "processing",
+    "completed",
+    "mould(s) sent",
+    "mould(s) received",
+  ].includes(normalizedStatus);
+  const statusBgClass = isRed ? "bg-red-100" : isGreen ? "bg-green-100" : "bg-orange-100";
   return (
     <View className="border-[#ccc] border-[0.5px] rounded-[10px] mt-4 p-2">
       <View className="flex-row gap-2 border-b-[0.5px] pb-2 border-[#ccc]">
         {/* <View className="bg-[#ccc] w-10 h-10 rounded-full"></View> */}
         <View>
-          <View className=" bg-green-100 self-start rounded-[10px] px-3 ">
+          <View className={` ${statusBgClass} self-start rounded-[10px] px-3 `}>
             <Text className=" font-inter-regular text-center text-[12px]">
               {order?.status}
             </Text>
@@ -19,9 +28,14 @@ const OrderCard = (order: Order) => {
         </View>
       </View>
 
-      <Text className="text-[14px] font-inter-regular pt-3 px-2">
-        {order?.items.length} Items{" "}
-      </Text>
+      <View className="flex-row justify-between items-center pt-3 px-2">
+        <Text className="text-[14px] font-inter-regular">
+          {order?.items.length} Items
+        </Text>
+        <Text className="text-[16px] font-inter-bold">
+          Total: £{Number(order?.total).toLocaleString()}
+        </Text>
+      </View>
 
       {order.items.map((item) => {
         return (
@@ -48,7 +62,7 @@ const OrderCard = (order: Order) => {
                 </Text>
 
                 <Text className="text-black font-inter-regular text-[14px]">
-                  £ {Number(item.price).toLocaleString("GBP")}
+                  £{Number(item.price).toLocaleString()}
                 </Text>
               </View>
             </View>

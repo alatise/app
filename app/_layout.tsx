@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { toastConfig } from "@/constants/toastConfig";
 import "@/global.css";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
@@ -22,8 +23,6 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 

@@ -7,10 +7,12 @@
     "icon": "./assets/images/icon.png",
     "scheme": "kabilsgrillz",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
+    "jsEngine": "jsc",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sean-convo.kabilsgrillz"
+      "bundleIdentifier": "com.alatise.kabilsgrillz",
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +20,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.seanconvo.kabilsgrillz"
+      "package": "com.alatise.kabilsgrillz",
+      "jsEngine": "jsc"
     },
     "web": {
       "bundler": "metro",
@@ -45,9 +48,8 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6f9a608a-632d-4ad0-9cfa-3d648d1cad4e"
+        "projectId": "35f50b2f-85ac-49c4-8aad-49ca8a246346"
       }
-    },
-    "owner": "sean_orj5"
+    }
   }
 }

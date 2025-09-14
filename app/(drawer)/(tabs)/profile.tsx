@@ -47,8 +47,8 @@ export default function ProfileScreen() {
       path: "/(order)/ongoingOrder",
     },
     {
-      name: "WishList",
-      path: "/(drawer)/(tabs)/wishlist",
+      name: "wishList",
+      path: "/(drawer)/wishlist",
     },
     {
       name: "Change Password",

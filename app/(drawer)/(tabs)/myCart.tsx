@@ -11,12 +11,11 @@ import { useLocalCart } from "@/hooks/useLocalCart";
 import { useSession } from "@/lib/authCtx";
 import { useProductCtx } from "@/lib/productsCtx";
 import { useGetCartQuery } from "@/services/cart";
-import {
-  useCheckOutMutation,
-  useGetDeliveryAddressQuery,
-} from "@/services/deliveryAddress";
+import { useGetDeliveryAddressQuery } from "@/services/deliveryAddress";
+import axios from "axios";
 import { router } from "expo-router";
-import React from "react";
+import * as SecureStore from "expo-secure-store";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -27,7 +26,7 @@ import {
 import { ScrollView } from "react-native-gesture-handler";
 
 export default function CartScreen() {
-  const { data: cart, isLoading: loadingCart } = useGetCartQuery();
+  const { data: cart, isLoading: loadingCart, isFetching } = useGetCartQuery();
 
   const {
     localCart,
@@ -39,60 +38,53 @@ export default function CartScreen() {
   } = useLocalCart(cart?.data.items);
 
   const { setCartState } = useProductCtx();
-
-  const [performCheckout, { isLoading }] = useCheckOutMutation();
+  const [proceedingNow, setProceedingNow] = useState(false);
   const { showAlert, setRequestResponse, alertVisible, requestResponse } =
     useSession();
   const { data: deliveryAddresses, isLoading: gettingAddress } =
     useGetDeliveryAddressQuery();
 
-  const addresses = deliveryAddresses?.data.addresses;
-
   const handleProceedToBuy = async () => {
-    const finalCartData = getFinalCartData();
-    console.log("Final cart data for API:", finalCartData);
+    // Build payload from current cart items, including variations
+    const cartItems = (cart?.data.items ?? []).map((item) => ({
+      product_id: Number(item.product_id),
+      quantity: getItemQuantity(item.cart_item_key) || item.quantity,
+      variation_id: Number(item.variation_id) || 0,
+      variation: item.variation_data ?? undefined,
+    }));
 
     try {
-      const response = await performCheckout({
-        cart_items: finalCartData!,
-        delivery_address: {
-          street: addresses![0].address_1,
-          city: addresses![0].city,
-          zip: addresses![0].postcode,
-        },
-      }).unwrap();
-      if (response.status === 200) {
-        setCartState({
-          finalCartData,
-          orderData: response.data,
-        });
-        router.push({
-          pathname: "/(products)/checkout",
-        });
-        setRequestResponse({
-          status: response.status,
-          title: response.message,
-          message: response.message,
-          type: "success",
-        });
-        return Promise.resolve();
+      setProceedingNow(true);
+      const token = await SecureStore.getItemAsync("session");
+      const body: any = {
+        cart_items: cartItems,
+      };
+      const response = await axios.post(
+        "https://kabilsgrillz.com/wp-json/mobile-app/v1/buy-now",
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const paymentLink = response.data?.data?.payment_link;
+      if (paymentLink) {
+        router.push({ pathname: "/(payment)/buyNow", params: { url: paymentLink } });
       }
     } catch (error: any) {
-      console.log("<<<<<<<eeee", error);
-
       setRequestResponse({
-        status: error.data.status,
-        title: error.data.message,
-        message: error.data.message,
+        status: error?.response?.status ?? 400,
+        title: "Buy Now failed",
+        message: error?.response?.data?.message ?? "Unable to start checkout",
         type: "error",
       });
       showAlert();
-      return Promise.reject(error);
+    } finally {
+      setProceedingNow(false);
     }
-
-    // router.push({
-    //   pathname: "/(products)/checkout"
-    // })
   };
 
   return (
@@ -111,6 +103,12 @@ export default function CartScreen() {
           </View>
         ) : (
           <>
+            {isFetching && (
+              <View className="flex-row items-center justify-center gap-2 bg-[#F6F6F6] border border-[#E2E2E2] py-2 px-3 rounded-[8px] mt-3">
+                <ActivityIndicator size="small" color="#000" />
+                <Text className="text-[12px] font-inter-medium">Updating cart…</Text>
+              </View>
+            )}
             {cart?.data.item_count === 0 ? (
               <View className="justify-center items-center pt-20">
                 <Text>You have no item in your cart</Text>
@@ -179,8 +177,8 @@ export default function CartScreen() {
 
       {cart?.data.items.length !== 0 && !loadingCart && (
         <Button
-          disabled={isLoading || gettingAddress || loadingCart}
-          loading={isLoading || gettingAddress || loadingCart}
+          disabled={proceedingNow || gettingAddress || loadingCart}
+          loading={proceedingNow || gettingAddress || loadingCart}
           children={`Proceed to Buy (${calculations.totalItems}  items)`}
           onPress={handleProceedToBuy}
           className="bg-[#000] my-6 py-4"
