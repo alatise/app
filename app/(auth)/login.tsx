@@ -198,8 +198,8 @@ const Login = () => {
 
       <CustomAlert
         visible={alertVisible}
-        title={requestResponse.message!}
-        message={requestResponse.message!}
+        title={requestResponse.title!}
+        message={requestResponse.title!}
         type={requestResponse.type!}
       />
     </View>

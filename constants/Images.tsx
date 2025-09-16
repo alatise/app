@@ -20,6 +20,8 @@ export const IMAGES = {
   CategoryActive: require("../assets/images/icons/category-active.png"),
   profileActive: require("../assets/images/icons/profile-active.png"),
   cartActive: require("../assets/images/icons/cart-active.png"),
+  customiseActive: require("../assets/images/icons/customise-active.png"),
+  customiseInactctive: require("../assets/images/icons/customise-inactive.png"),
 
   user: require("../assets/images/icons/user.png"),
   card: require("../assets/images/icons/card.png"),

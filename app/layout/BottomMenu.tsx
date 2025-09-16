@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { IMAGES } from "@/constants/Images";
 import { GlobalClasses } from "@/constants/Stylesheet";
 import { useTheme } from "@react-navigation/native";
@@ -81,14 +82,17 @@ const BottomMenu = ({ state, navigation, descriptors }: Props) => {
               switch (label) {
                 case "Home":
                   return isFocused ? IMAGES.HomeActive : IMAGES.Home;
-                case "Wishlist":
-                  return isFocused ? IMAGES.wishList : IMAGES.heart;
+                case "Category":
+                  return isFocused ? IMAGES.CategoryActive : IMAGES.Category;
                 case "MyCart":
                   return isFocused ? IMAGES.cartActive : IMAGES.mycart;
                 case "Customise":
-                  return isFocused ? IMAGES.CategoryActive : IMAGES.Category;
+                  return isFocused
+                    ? IMAGES.customiseActive
+                    : IMAGES.customiseInactctive;
                 case "Profile":
                   return isFocused ? IMAGES.profileActive : IMAGES.user2;
+
                 default:
                   return isFocused ? IMAGES.HomeActive : IMAGES.Home;
               }

@@ -1,12 +1,19 @@
 import Arrow from "@/assets/images/iconsvg/arrowright.svg";
 import Avatar from "@/assets/images/iconsvg/avatar.svg";
-
 import { IMAGES } from "@/constants/Images";
 import { useSession } from "@/lib/authCtx";
 import { useGetProfileQuery } from "@/services/auth";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { router } from "expo-router";
-import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  Text,
+  View,
+  Linking,
+  Alert,
+} from "react-native";
 
 export default function CustomDrawerContent(props: any) {
   const { session, isSessionLoading, setSession } = useSession();
@@ -26,7 +33,7 @@ export default function CustomDrawerContent(props: any) {
       navigate: "products",
     },
     {
-      icon: IMAGES.producta,
+      icon: IMAGES.customiseInactctive,
       name: "Categories",
       navigate: "categories",
     },
@@ -63,6 +70,38 @@ export default function CustomDrawerContent(props: any) {
       navigate: "logout",
     },
   ];
+
+  const handlePhoneCall = async () => {
+    const phoneNumber = "+447450587212";
+    const url = `tel:${phoneNumber}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "Phone dialer is not available on this device");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to open phone dialer");
+    }
+  };
+
+  const handleEmailPress = async () => {
+    const email = "info@kabilsgrillz.com";
+    const url = `mailto:${email}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "Email app is not available on this device");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to open email app");
+    }
+  };
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
@@ -104,7 +143,7 @@ export default function CustomDrawerContent(props: any) {
               }
 
               if (item.navigate === "wishlist") {
-                router.push("/(drawer)/(tabs)/wishlist");
+                router.push("/(drawer)/wishlist");
               }
               if (item.navigate === "orders") {
                 router.push("/(order)/ongoingOrder");
@@ -143,9 +182,22 @@ export default function CustomDrawerContent(props: any) {
         ))}
       </View>
 
-      {/* Logout */}
-      <Pressable className="px-2 mt-10 border-t-[1px] border-[#ccc] pt-3">
-        <Text className="text- text-base font-inter-medium">Kabils Grillz</Text>
+      {/* Contact Information */}
+      <Pressable className="px-2 mt-10 border-t-[1px] border-[#ccc] pt-3 flex flex-col gap-2">
+        <Text className=" text-base font-inter-medium">Kabils Grillz</Text>
+
+        <Pressable onPress={handlePhoneCall}>
+          <Text className="text-base font-bold text-secondary">
+            +44 7450 587212
+          </Text>
+        </Pressable>
+
+        <Pressable onPress={handleEmailPress}>
+          <Text className="text-base font-bold text-secondary">
+            info@kabilsgrillz.com
+          </Text>
+        </Pressable>
+
         <Text className="text-[13px] font-inter-regular">App Version 1.0</Text>
       </Pressable>
     </DrawerContentScrollView>

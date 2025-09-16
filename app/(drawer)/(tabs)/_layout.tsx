@@ -24,12 +24,11 @@ export default function TabLayout() {
           tabBarLabel: "Home",
         }}
       />
-
       <Tabs.Screen
-        name="wishlist"
+        name="category"
         options={{
-          title: "Wishlist",
-          tabBarLabel: "Wishlist",
+          title: "Category",
+          tabBarLabel: "Category",
         }}
       />
       <Tabs.Screen
@@ -40,12 +39,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="category"
+        name="customise"
         options={{
-          title: "Category",
+          title: "Customise",
           tabBarLabel: "Customise",
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{

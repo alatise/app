@@ -1,12 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-extra-non-null-assertion */
 import Back from "@/assets/images/iconsvg/back.svg";
 import Close from "@/assets/images/iconsvg/close1.svg";
 import Search from "@/assets/images/iconsvg/search.svg";
 import ProductCard from "@/components/Products/ProductCard";
-import { CategoryItem } from "@/components/Shared/CategoryItem";
 import MainHeader from "@/components/Shared/MainHeader";
 import SearchResultsComp from "@/components/Shared/SearchResults";
 import TabWrapper from "@/components/Shared/TabWrapper";
-import { useProductCtx } from "@/lib/productsCtx";
 import { SearchProductsResponse } from "@/lib/type";
 import {
   useGetCategoriesQuery,
@@ -18,6 +18,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Image,
+  Pressable,
   Text,
   TextInput,
   View,
@@ -26,10 +28,25 @@ import {
 export default function CategoryScreen() {
   const { data, isLoading: loadingCategories } = useGetCategoriesQuery();
   const [showSearch, setShowSearch] = useState(false);
+  const [showOnlySelected, setShowOnlySelected] = useState(false);
+
+  // LOCAL state for CategoryScreen - not using global context
+  const [localSelectCategory, setLocalSelectCategory] = useState<any>({
+    id: 0,
+    name: "All",
+    slug: "",
+    image_url: "",
+    product_count: 0,
+    subcategories: [],
+  });
+  const [localCurrentPage, setLocalCurrentPage] = useState(1);
+  const [localHasMore, setLocalHasMore] = useState(true);
+
   // search state
   const [searchState, setSearchState] = useState("");
   const [searchResults, setSearchResult] = useState<SearchProductsResponse>();
   const [searching, setSearching] = useState(false);
+
   const getResults = async () => {
     setSearching(true);
     try {
@@ -78,21 +95,12 @@ export default function CategoryScreen() {
   };
 
   const {
-    selectCategoryFilter,
-    setSelectCategoryFilter,
-    currentPage,
-    setCurrentPage,
-    hasMore,
-    setHasMore,
-  } = useProductCtx();
-
-  const {
     data: categoryProducts,
     isLoading: loadingProducts,
     isFetching,
   } = useGetProductsByCategoryIdQuery({
-    id: selectCategoryFilter!?.id === 0 ? 18 : selectCategoryFilter?.id,
-    page: currentPage,
+    id: localSelectCategory?.id === 0 ? 18 : localSelectCategory?.id,
+    page: localCurrentPage,
     per_page: 16,
   });
 
@@ -100,45 +108,43 @@ export default function CategoryScreen() {
 
   useEffect(() => {
     if (categoryProducts) {
-      const isLastPage = currentPage >= products!.pagination.total_pages;
-      setHasMore(!isLastPage);
+      const isLastPage = localCurrentPage >= products!.pagination.total_pages;
+      setLocalHasMore(!isLastPage);
       setIsLoadingMore(false);
       // Update the last loaded page when data successfully loads
-      lastLoadedPageRef.current = currentPage;
+      lastLoadedPageRef.current = localCurrentPage;
     }
-  }, [products, currentPage, setHasMore]);
+  }, [products, localCurrentPage]);
 
   // Reset page when category changes
   useEffect(() => {
-    setCurrentPage(1);
+    setLocalCurrentPage(1);
     lastLoadedPageRef.current = 1; // reset pagination tracker
     highestViewedPageRef.current = 1; // reset viewed page tracker
     setIsLoadingMore(false);
-  }, [selectCategoryFilter!?.id, setCurrentPage]);
+  }, [localSelectCategory?.id]);
 
   const loadMore = useCallback(() => {
     if (
       isLoadingMore ||
       loadingProducts ||
       isFetching ||
-      !hasMore ||
+      !localHasMore ||
       !products
     ) {
       return;
     }
 
-    console.log("Loading more - Current page:", currentPage);
+    console.log("Loading more - Current page:", localCurrentPage);
     setIsLoadingMore(true);
-    //@ts-expect-error
-    setCurrentPage((prev: any) => prev + 1);
+    setLocalCurrentPage((prev: any) => prev + 1);
   }, [
     isLoadingMore,
     loadingProducts,
     isFetching,
-    hasMore,
+    localHasMore,
     products,
-    currentPage,
-    setCurrentPage,
+    localCurrentPage,
   ]);
 
   const renderFooter = () => {
@@ -151,8 +157,8 @@ export default function CategoryScreen() {
   };
 
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: Array<{ index: number }> }) => {
-      if (!hasMore || isLoadingMore || !viewableItems.length) return;
+    ({ viewableItems }: { viewableItems: { index: number }[] }) => {
+      if (!localHasMore || isLoadingMore || !viewableItems.length) return;
 
       const lastVisibleIndex =
         viewableItems[viewableItems.length - 1]?.index ?? 0;
@@ -173,7 +179,7 @@ export default function CategoryScreen() {
       const shouldLoadMore =
         pageOfLastVisibleItem >= lastLoadedPageRef.current && // User has caught up to loaded content
         itemPositionInPage >= 12 && // User is near end of current page
-        pageOfLastVisibleItem >= currentPage - 1; // Don't load if we're viewing old content
+        pageOfLastVisibleItem >= localCurrentPage - 1; // Don't load if we're viewing old content
 
       if (shouldLoadMore) {
         console.log("Triggering loadMore:", {
@@ -181,13 +187,13 @@ export default function CategoryScreen() {
           pageOfLastVisibleItem,
           itemPositionInPage,
           lastLoadedPage: lastLoadedPageRef.current,
-          currentPage,
+          currentPage: localCurrentPage,
           highestViewedPage: highestViewedPageRef.current,
         });
         loadMore();
       }
     },
-    [hasMore, isLoadingMore, loadMore, currentPage]
+    [localHasMore, isLoadingMore, loadMore, localCurrentPage]
   );
 
   const SearchComp = (
@@ -238,37 +244,99 @@ export default function CategoryScreen() {
               </Text>
             </View>
           ) : (
-            <View className="flex items-center justify-center">
-              <FlatList
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                data={categories}
-                renderItem={({ item }) => (
-                  <CategoryItem
-                    setSelectCategory={setSelectCategoryFilter!}
-                    selectCategory={selectCategoryFilter!}
-                    item={item}
-                  />
-                )}
-                style={{ marginTop: 10 }}
-                keyExtractor={(item) => `${item.id}`}
-              />
+            <View className="mt-3">
+              {showOnlySelected ? (
+                <View className="flex-row items-center">
+                  <View
+                    className={`rounded-[8px] h-[38px] items-center flex-row px-3 flex-1 ${"bg-black"}`}
+                    style={{ minWidth: 0 }}
+                  >
+                    {localSelectCategory?.image_url ? (
+                      <Image
+                        source={{
+                          uri: localSelectCategory.image_url as string,
+                        }}
+                        className="w-[28px] h-[28px] rounded-full mr-2"
+                      />
+                    ) : (
+                      <View className="w-[28px] h-[28px] rounded-full bg-[#E5E5E5] items-center justify-center mr-2">
+                        <Text className="text-[12px] text-[#333] font-inter-semibold">
+                          {localSelectCategory?.name?.charAt(0)?.toUpperCase()}
+                        </Text>
+                      </View>
+                    )}
+                    <Text
+                      className={`text-[13px] font-inter-semibold flex-1 text-white`}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={{ flexShrink: 1, minWidth: 0 }}
+                    >
+                      {localSelectCategory?.name}
+                    </Text>
+                  </View>
+
+                  <Pressable
+                    onPress={() => setShowOnlySelected(false)}
+                    className="px-3 h-[38px] rounded-[8px] bg-[#F2F2F2] items-center justify-center ml-2"
+                  >
+                    <Text className="text-[12px] font-inter-semibold text-[#222]">
+                      Show all categories
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <View className="flex-row flex-wrap justify-between">
+                  {(categories ?? []).map((item) => (
+                    <Pressable
+                      key={item.id}
+                      onPress={() => {
+                        setLocalSelectCategory(item);
+                        setShowOnlySelected(true);
+                      }}
+                      className={`rounded-[8px] h-[38px] items-center flex-row px-3 mb-3 ${
+                        localSelectCategory.name === item.name
+                          ? "bg-black"
+                          : "bg-[#F2F2F2]"
+                      }`}
+                      style={{ width: "48%" }}
+                    >
+                      {item.image_url ? (
+                        <Image
+                          source={{ uri: item.image_url }}
+                          className="w-[28px] h-[28px] rounded-full mr-2"
+                        />
+                      ) : (
+                        <View className="w-[28px] h-[28px] rounded-full bg-[#E5E5E5] items-center justify-center mr-2">
+                          <Text className="text-[12px] text-[#333] font-inter-semibold">
+                            {item.name?.charAt(0)?.toUpperCase()}
+                          </Text>
+                        </View>
+                      )}
+                      <Text
+                        className={`text-[13px] font-inter-semibold flex-1 ${
+                          localSelectCategory.name === item.name
+                            ? "text-white"
+                            : "text-[#222]"
+                        }`}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ flexShrink: 1, minWidth: 0 }}
+                      >
+                        {item.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
             </View>
           )}
 
           <Text className="font-inter-semibold text-lg pt-6">
-            Discover latest collection{" "}
+            {`Discover ${localSelectCategory?.name || "latest collection"}`}
           </Text>
 
-          <View className="mt-4 pb-[160px]">
-            {products?.products.length === 0 && !isFetching && (
-              <View className="flex items-center justify-center mt-20">
-                <Text className="mt-2 text-black text-sm font-inter-medium">
-                  No products under this category..
-                </Text>
-              </View>
-            )}
-            {isFetching && currentPage === 1 ? (
+          <View className="mt-4">
+            {isFetching && localCurrentPage === 1 ? (
               // Category switched → full loader
               <View className="flex-1 items-center justify-center py-20">
                 <ActivityIndicator size="large" />
@@ -282,7 +350,7 @@ export default function CategoryScreen() {
                 renderItem={({ item }) => <ProductCard {...item} />}
                 columnWrapperStyle={{
                   justifyContent: "space-between",
-                  marginBottom: 20,
+                  marginBottom: 10,
                 }}
                 //@ts-expect-error
                 onViewableItemsChanged={onViewableItemsChanged}
@@ -295,10 +363,13 @@ export default function CategoryScreen() {
               />
             )}
             {isFetching && products!?.products?.length === 0 && (
-              <View className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-10">
+              <View
+                style={{ backgroundColor: "red" }}
+                className="absolute top-0 left-0 right-0 bottom-0 bg-red-200 flex items-center justify-center z-10"
+              >
                 <ActivityIndicator size="large" color="#000" />
                 <Text className="mt-2 text-base font-inter-medium">
-                  Loading products...
+                  Loading products ---...
                 </Text>
               </View>
             )}
