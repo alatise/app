@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "kabilsgrillz",
-    "slug": "kabilsgrillz",
+    "slug": "Kabillz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -45,9 +45,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6f9a608a-632d-4ad0-9cfa-3d648d1cad4e"
+        "projectId": "db79d85f-127a-4c40-ae9b-9a76936164c6"
       }
     },
-    "owner": "sean_orj5"
+    "owner": "sean-convo"
   }
 }
